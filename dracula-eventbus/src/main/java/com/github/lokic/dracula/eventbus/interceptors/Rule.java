@@ -30,8 +30,6 @@ public class Rule {
 
     private static final Rule DEFAULT_RULE = Rule.of(INTERNAL_DEFAULT_KEY);
 
-    private static final Rule REMOVE_DEFAULT_RULE = DEFAULT_RULE.reverse();
-
     private final boolean remove;
 
     private final String name;
