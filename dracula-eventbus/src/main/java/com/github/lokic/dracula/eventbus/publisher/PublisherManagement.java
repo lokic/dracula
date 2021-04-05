@@ -4,9 +4,13 @@ import com.github.lokic.javaext.Types;
 import com.google.common.reflect.TypeToken;
 import com.github.lokic.dracula.event.Event;
 
+import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,14 +42,6 @@ public class PublisherManagement {
     }
 
 
-    /**
-     * https://gist.github.com/dgageot/bda57296107ca6a0e9df
-     *
-     * Lambda class name: test.Toto$$Lambda$1/1199823423
-     * Implementation synthetic method: lambda$main$0
-     * @param publisher
-     * @return
-     */
     Class<?> findEventClassSmart(Publisher<?> publisher) {
         // Not a lambda
         if (isNotLambda(publisher)) {
@@ -68,31 +64,45 @@ public class PublisherManagement {
 //        return publisher.getClass().getMethods()[0].getParameterTypes()[0];
     }
 
+    /**
+     * https://github.com/benjiman/lambda-type-references/blob/master/src/main/java/com/benjiweber/typeref/MethodFinder.java
+     *
+     * @param lambdaPublisher
+     * @return
+     */
     private  Class<?> findEventClassOfLambda(Publisher<?> lambdaPublisher){
-        String lambdaClassName = lambdaPublisher.getClass().getName();
-        int lambdaMarkerIndex = lambdaClassName.indexOf("$$Lambda$");
-
-        String declaringClassName = lambdaClassName.substring(0, lambdaMarkerIndex);
-        int lambdaIndex = Integer.parseInt(lambdaClassName.substring(lambdaMarkerIndex + 9, lambdaClassName.lastIndexOf('/')));
-
-        Class<?> declaringClass;
-        try {
-            declaringClass = Class.forName(declaringClassName);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("Unable to find lambda's parent class " + declaringClassName);
-        }
-
-        for (Method method : declaringClass.getDeclaredMethods()) {
-            if (method.isSynthetic()
-                    && method.getName().startsWith("lambda$")
-                    && method.getName().endsWith("$" + (lambdaIndex - 1))
-                    && Modifier.isStatic(method.getModifiers())) {
-                return method.getParameterTypes()[0];
-            }
-        }
-
-        throw new IllegalStateException("Unable to find lambda's implementation method");
+        return TypeToken.of(method(lambdaPublisher).getParameters()[0].getParameterizedType()).getRawType();
     }
+
+    private static Method method(Object lambda) {
+        SerializedLambda serialized = serialized(lambda);
+        Class<?> containingClass = getContainingClass(serialized);
+        return Arrays.stream(containingClass.getDeclaredMethods())
+                .filter(method -> Objects.equals(method.getName(), serialized.getImplMethodName()))
+                .findFirst()
+                .orElseThrow(RuntimeException::new);
+    }
+
+    private static SerializedLambda serialized(Object lambda) {
+        try {
+            Method writeMethod = lambda.getClass().getDeclaredMethod("writeReplace");
+            writeMethod.setAccessible(true);
+            return (SerializedLambda) writeMethod.invoke(lambda);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private static Class<?> getContainingClass(SerializedLambda lambda) {
+        try {
+            String className = lambda.getImplClass().replaceAll("/", ".");
+            return Class.forName(className);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 
     /**
