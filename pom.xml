@@ -6,8 +6,8 @@
 
     <groupId>com.github.lokic</groupId>
     <artifactId>dracula</artifactId>
-    <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <modules>
         <module>dracula-ddd</module>
         <module>dracula-eventbus</module>
