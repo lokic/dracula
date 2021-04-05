@@ -11,6 +11,7 @@
     <modules>
         <module>dracula-ddd</module>
         <module>dracula-eventbus</module>
+        <module>dracula-eventbus-ddd</module>
     </modules>
 
     <properties>
