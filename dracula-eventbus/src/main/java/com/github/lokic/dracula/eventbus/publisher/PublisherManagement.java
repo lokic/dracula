@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus.publihser;
+package com.github.lokic.dracula.eventbus.publisher;
 
 import com.github.lokic.javaext.Types;
 import com.google.common.reflect.TypeToken;

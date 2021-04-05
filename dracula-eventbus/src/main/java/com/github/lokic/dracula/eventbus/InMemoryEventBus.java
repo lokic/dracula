@@ -4,8 +4,8 @@ import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
 import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
-import com.github.lokic.dracula.eventbus.publihser.InMemoryPublisher;
-import com.github.lokic.dracula.eventbus.publihser.PublisherManagement;
+import com.github.lokic.dracula.eventbus.publisher.InMemoryPublisher;
+import com.github.lokic.dracula.eventbus.publisher.PublisherManagement;
 import com.github.lokic.dracula.eventbus.subscriber.*;
 import lombok.extern.slf4j.Slf4j;
 

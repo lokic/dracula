@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus.publihser;
+package com.github.lokic.dracula.eventbus.publisher;
 
 import com.github.lokic.dracula.event.Event;
 
