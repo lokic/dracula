@@ -13,6 +13,7 @@
         <module>dracula-eventbus</module>
         <module>dracula-eventbus-ddd</module>
         <module>dracula-eventbus-spring-boot-starter</module>
+        <module>dracula-bom</module>
     </modules>
 
     <properties>
@@ -91,6 +92,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.lokic</groupId>
+                <artifactId>dracula-bom</artifactId>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
