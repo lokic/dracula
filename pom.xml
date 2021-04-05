@@ -14,6 +14,7 @@
         <module>dracula-eventbus-ddd</module>
         <module>dracula-eventbus-spring-boot-starter</module>
         <module>dracula-bom</module>
+        <module>dracula-eventbus-tx</module>
     </modules>
 
     <properties>
