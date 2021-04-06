@@ -25,8 +25,7 @@ public class InMemoryEventBus implements EventBus {
 
     @Override
     public <E extends Event> void register(Class<E> eventClazz, EventHandler<E> handler, List<InterceptorAttribute<E>> interceptorAttributes, EventHandlerAttribute eventHandlerAttribute) {
-        Subscriber<E> subscriber = subscriberManagement.addSubscriber(eventClazz,
-                new InMemorySubscriber<>(new SubscriptionImpl<>(eventClazz, handler, interceptorAttributes, eventHandlerAttribute)));
+        Subscriber<E> subscriber = subscriberManagement.addSubscription(eventClazz, new SubscriptionImpl<>(eventClazz, handler, interceptorAttributes, eventHandlerAttribute));
         publisherManagement.addPublisherIfNotExist(eventClazz, new InMemoryPublisher<>(subscriber));
     }
 

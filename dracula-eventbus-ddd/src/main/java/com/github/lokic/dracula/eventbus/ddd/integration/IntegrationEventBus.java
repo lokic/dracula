@@ -23,8 +23,7 @@ public class IntegrationEventBus implements EventBus {
 
     @Override
     public <E extends Event> void register(Class<E> eventClazz, EventHandler<E> handler, List<InterceptorAttribute<E>> interceptors, EventHandlerAttribute attribute) {
-        InMemorySubscriber<E> subscriber = new InMemorySubscriber<>(new SubscriptionImpl<>(eventClazz, handler, interceptors, attribute));
-        subscriberManagement.addSubscriber(eventClazz, subscriber);
+        subscriberManagement.addSubscription(eventClazz, new SubscriptionImpl<>(eventClazz, handler, interceptors, attribute));
     }
 
     public <E extends IntegrationEvent> void connect(Class<E> eventClazz, IntegrationSubscriber<E> subscriber) {

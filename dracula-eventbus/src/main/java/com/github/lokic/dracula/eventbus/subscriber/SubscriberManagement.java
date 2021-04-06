@@ -16,15 +16,10 @@ public class SubscriberManagement {
         this.subscribers = new ConcurrentHashMap<>();
     }
 
-    public <E extends Event> SubscriptionSubscriber<E> addSubscriber(Class<E> eClazz, SubscriptionSubscriber<E> subscriber) {
-        if (subscribers.containsKey(eClazz)) {
-            SubscriptionSubscriber<E> s = getSubscriber(eClazz);
-            subscriber.getSubscriptions().forEach(s::addSubscription);
-            return s;
-        } else {
-            subscribers.put(eClazz, subscriber);
-            return subscriber;
-        }
+    public <E extends Event> SubscriptionSubscriber<E> addSubscription(Class<E> eClazz, Subscription<E> subscription) {
+        SubscriptionSubscriber<E> subscriber = Types.cast(subscribers.computeIfAbsent(eClazz, e -> new InMemorySubscriber<>()));
+        subscriber.addSubscription(subscription);
+        return subscriber;
     }
 
     public <E extends Event> void removeSubscriber(EventHandler<E> eventHandler) {
