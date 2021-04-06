@@ -2,13 +2,11 @@ package com.github.lokic.dracula.eventbus.ddd.integration;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.event.IntegrationEvent;
-import com.github.lokic.dracula.eventbus.*;
-import com.github.lokic.dracula.eventbus.handlers.EventHandler;
+import com.github.lokic.dracula.eventbus.*;import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import com.github.lokic.dracula.eventbus.publisher.PublisherManagement;
 import com.github.lokic.dracula.eventbus.subscriber.*;
 import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
 import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
-import com.github.lokic.javaext.Types;
 
 import java.util.List;
 
@@ -29,14 +27,12 @@ public class IntegrationEventBus implements EventBus {
         subscriberManagement.addSubscriber(eventClazz, subscriber);
     }
 
-    public <E extends IntegrationEvent> IntegrationSubscriber<E> connect(Class<E> eventClazz) {
+    public <E extends IntegrationEvent> void connect(Class<E> eventClazz, IntegrationSubscriber<E> subscriber) {
         Subscriber<E> s = subscriberManagement.getSubscriber(eventClazz);
         if (s instanceof IntegrationSubscriber) {
-            return Types.cast(s);
+            throw new IllegalArgumentException(eventClazz.getName() + " already connect IntegrationSubscriber");
         } else {
-            IntegrationSubscriber<E> subscriber = new IntegrationSubscriber<>();
             subscriberManagement.replaceSubscriber(eventClazz, subscriber);
-            return subscriber;
         }
     }
 
