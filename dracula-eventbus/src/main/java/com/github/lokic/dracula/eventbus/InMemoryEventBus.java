@@ -36,7 +36,7 @@ public class InMemoryEventBus implements EventBus {
     }
 
     @Override
-    public <E extends Event> void post(E event) {
+    public <E extends Event> void send(E event) {
         publisherManagement.processEvent(event);
     }
 
