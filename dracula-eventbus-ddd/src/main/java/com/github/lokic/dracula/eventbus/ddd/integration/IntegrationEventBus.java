@@ -2,13 +2,11 @@ package com.github.lokic.dracula.eventbus.ddd.integration;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.event.IntegrationEvent;
-import com.github.lokic.dracula.eventbus.*;
-import com.github.lokic.dracula.eventbus.handlers.EventHandler;
+import com.github.lokic.dracula.eventbus.*;import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import com.github.lokic.dracula.eventbus.publisher.PublisherManagement;
 import com.github.lokic.dracula.eventbus.subscriber.*;
 import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
 import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
-import com.github.lokic.javaext.Types;
 
 import java.util.List;
 
@@ -25,28 +23,25 @@ public class IntegrationEventBus implements EventBus {
 
     @Override
     public <E extends Event> void register(Class<E> eventClazz, EventHandler<E> handler, List<InterceptorAttribute<E>> interceptors, EventHandlerAttribute attribute) {
-        InMemorySubscriber<E> subscriber = new InMemorySubscriber<>(new SubscriptionImpl<>(eventClazz, handler, interceptors, attribute));
-        subscriberManagement.addSubscriber(eventClazz, subscriber);
+        subscriberManagement.addSubscription(eventClazz, new SubscriptionImpl<>(eventClazz, handler, interceptors, attribute));
     }
 
-    public <E extends IntegrationEvent> IntegrationSubscriber<E> connect(Class<E> eventClazz) {
+    public <E extends IntegrationEvent> void connect(Class<E> eventClazz, IntegrationSubscriber<E> subscriber) {
         Subscriber<E> s = subscriberManagement.getSubscriber(eventClazz);
         if (s instanceof IntegrationSubscriber) {
-            return Types.cast(s);
+            throw new IllegalArgumentException(eventClazz.getName() + " already connect IntegrationSubscriber");
         } else {
-            IntegrationSubscriber<E> subscriber = new IntegrationSubscriber<>();
             subscriberManagement.replaceSubscriber(eventClazz, subscriber);
-            return subscriber;
         }
     }
 
     @Override
     public <E extends Event> void unregister(EventHandler<E> handler) {
-        subscriberManagement.removeSubscriber(handler);
+        subscriberManagement.removeEventHandler(handler);
     }
 
     @Override
-    public <E extends Event> void post(E event) {
+    public <E extends Event> void send(E event) {
         publisherManagement.processEvent(event);
     }
 

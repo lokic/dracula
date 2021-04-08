@@ -28,8 +28,8 @@ public class RoutingEventBus implements EventBus {
 
     @Override
     public <E extends Event> void register(Class<E> eventClazz, EventHandler<E> handler, List<InterceptorAttribute<E>> interceptors, EventHandlerAttribute attribute) {
-        routingMapping.forEach((eClazz, eventBus) -> {
-            if (eClazz.isAssignableFrom(eventClazz)) {
+        routingMapping.forEach((routingClazz, eventBus) -> {
+            if (routingClazz.isAssignableFrom(eventClazz)) {
                 eventBus.register(eventClazz, handler, interceptors, attribute);
             }
         });
@@ -37,14 +37,14 @@ public class RoutingEventBus implements EventBus {
 
     @Override
     public <E extends Event> void unregister(EventHandler<E> handler) {
-        routingMapping.forEach((eClazz, eventBus) -> eventBus.unregister(handler));
+        routingMapping.forEach((routingClazz, eventBus) -> eventBus.unregister(handler));
     }
 
     @Override
-    public <E extends Event> void post(E event) {
-        routingMapping.forEach((eClazz, eventBus) -> {
-            if (eClazz.isInstance(event)) {
-                eventBus.post(event);
+    public <E extends Event> void send(E event) {
+        routingMapping.forEach((routingClazz, eventBus) -> {
+            if (routingClazz.isInstance(event)) {
+                eventBus.send(event);
             }
         });
     }

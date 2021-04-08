@@ -20,11 +20,11 @@ public interface EventBus {
 
     <E extends Event> void unregister(EventHandler<E> handler);
 
-    <E extends Event> void post(E event);
+    <E extends Event> void send(E event);
 
-    default <E extends Event> void post(List<E> events) {
+    default <E extends Event> void send(List<E> events) {
         if (events != null) {
-            events.forEach(this::post);
+            events.forEach(this::send);
         }
     }
 }

@@ -9,36 +9,32 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SubscriberManagement {
 
-    public Map<Class<? extends Event>, SubscriptionSubscriber<? extends Event>> subscribers;
+    public Map<Class<? extends Event>, BaseSubscriber<? extends Event>> subscribers;
 
 
     public SubscriberManagement() {
         this.subscribers = new ConcurrentHashMap<>();
     }
 
-    public <E extends Event> SubscriptionSubscriber<E> addSubscriber(Class<E> eClazz, SubscriptionSubscriber<E> subscriber) {
-        if (subscribers.containsKey(eClazz)) {
-            SubscriptionSubscriber<E> s = getSubscriber(eClazz);
-            subscriber.getSubscriptions().forEach(s::addSubscription);
-            return s;
-        } else {
-            subscribers.put(eClazz, subscriber);
-            return subscriber;
-        }
+    public <E extends Event> BaseSubscriber<E> addSubscription(Class<E> eventClazz, Subscription<E> subscription) {
+        BaseSubscriber<E> subscriber = Types.cast(subscribers.computeIfAbsent(eventClazz, e -> new LocalSubscriber<>()));
+        subscriber.addSubscription(subscription);
+        return subscriber;
     }
 
-    public <E extends Event> void removeSubscriber(EventHandler<E> eventHandler) {
-        subscribers.values().forEach(subscriber -> subscriber.removeSubscription(Types.cast(eventHandler)));
+    public <E extends Event> void removeEventHandler(EventHandler<E> eventHandler) {
+        subscribers.values().forEach(subscriber -> subscriber.removeEventHandler(Types.cast(eventHandler)));
     }
 
-    public <E extends Event> void replaceSubscriber(Class<E> eClazz, SubscriptionSubscriber<E> subscriber) {
-        SubscriptionSubscriber<E> oldSub = getSubscriber(eClazz);
+    public <E extends Event> void replaceSubscriber(Class<E> eventClazz, BaseSubscriber<E> subscriber) {
+        BaseSubscriber<E> oldSub = getSubscriber(eventClazz);
         oldSub.getSubscriptions().forEach(subscriber::addSubscription);
-        subscribers.put(eClazz, subscriber);
+        oldSub.clear();
+        subscribers.put(eventClazz, subscriber);
     }
 
-    public <E extends Event> SubscriptionSubscriber<E> getSubscriber(Class<E> eClazz) {
-        return Types.cast(subscribers.get(eClazz));
+    public <E extends Event> BaseSubscriber<E> getSubscriber(Class<E> eventClazz) {
+        return Types.cast(subscribers.computeIfAbsent(eventClazz, e -> new LocalSubscriber<>()));
     }
 
 }

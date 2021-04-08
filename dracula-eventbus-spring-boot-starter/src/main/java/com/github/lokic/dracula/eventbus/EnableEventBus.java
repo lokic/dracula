@@ -15,5 +15,5 @@ public @interface EnableEventBus {
      *
      * @return
      */
-    Class<? extends EventBus> eventBus() default InMemoryEventBus.class;
+    Class<? extends EventBus> eventBus() default LocalEventBus.class;
 }
