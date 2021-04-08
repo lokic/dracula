@@ -3,13 +3,13 @@ package com.github.lokic.dracula.eventbus.transaction.mysql;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.transaction.EventTypeHandler;
+import com.github.lokic.dracula.eventbus.transaction.EventTypeSerializer;
 
-public class FastJsonEventTypeHandler implements EventTypeHandler {
+public class FastJsonEventTypeSerializer implements EventTypeSerializer {
 
     @Override
-    public Event deserialize(String s) {
-        return JSON.parseObject(s, Event.class);
+    public <E extends Event> E deserialize(String s, Class<E> eventClazz) {
+        return JSON.parseObject(s, eventClazz);
     }
 
     @Override

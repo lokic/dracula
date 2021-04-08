@@ -6,15 +6,15 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class FastJsonEventTypeHandlerTest {
+public class FastJsonEventTypeSerializerTest {
 
     @Test
     public void deserialize() {
         TestEvent testEvent = new TestEvent();
         testEvent.setContent("xxx");
         testEvent.setId(1L);
-        String jsonStr = new FastJsonEventTypeHandler().serialize(testEvent);
-        Assert.assertEquals(TestEvent.class, new FastJsonEventTypeHandler().deserialize(jsonStr).getClass());
+        String jsonStr = new FastJsonEventTypeSerializer().serialize(testEvent);
+        Assert.assertEquals(TestEvent.class, new FastJsonEventTypeSerializer().deserialize(jsonStr, Event.class).getClass());
     }
 
     @Data

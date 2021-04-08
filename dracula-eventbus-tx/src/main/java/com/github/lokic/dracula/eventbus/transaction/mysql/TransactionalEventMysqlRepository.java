@@ -1,6 +1,7 @@
 package com.github.lokic.dracula.eventbus.transaction.mysql;
 
-import com.github.lokic.dracula.eventbus.transaction.EventTypeHandler;
+import com.github.lokic.dracula.event.Event;
+import com.github.lokic.dracula.eventbus.transaction.EventTypeSerializer;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEvent;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEventRepository;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -18,18 +19,18 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
     private final JdbcTemplate jdbcTemplate;
 
 
-    private final EventTypeHandler eventTypeHandler;
+    private final EventTypeSerializer eventTypeSerializer;
 
 
     public TransactionalEventMysqlRepository(JdbcTemplate jdbcTemplate) {
-        this(jdbcTemplate,  new FastJsonEventTypeHandler());
+        this(jdbcTemplate,  new FastJsonEventTypeSerializer());
     }
 
-    public TransactionalEventMysqlRepository(JdbcTemplate jdbcTemplate, EventTypeHandler eventTypeHandler) {
+    public TransactionalEventMysqlRepository(JdbcTemplate jdbcTemplate, EventTypeSerializer eventTypeSerializer) {
         Objects.requireNonNull(jdbcTemplate, "jdbcTemplate is null");
-        Objects.requireNonNull(eventTypeHandler, "eventTypeHandler is null");
+        Objects.requireNonNull(eventTypeSerializer, "eventTypeHandler is null");
         this.jdbcTemplate = jdbcTemplate;
-        this.eventTypeHandler = eventTypeHandler;
+        this.eventTypeSerializer = eventTypeSerializer;
     }
 
     @Override
@@ -44,7 +45,7 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
                         ps.setString(1, events.get(i).getEventKey());
-                        ps.setString(2, eventTypeHandler.serialize(events.get(i).getEvent()));
+                        ps.setString(2, eventTypeSerializer.serialize(events.get(i).getEvent()));
                         ps.setInt(3, events.get(i).getStatus().getStatus());
                         ps.setInt(3, events.get(i).getCurrentRetryTimes());
                         ps.setInt(4, events.get(i).getMaxRetryTimes());
@@ -98,7 +99,7 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
                     TransactionalEvent txEvent = new TransactionalEvent();
                     txEvent.setId(rs.getLong("id"));
                     txEvent.setEventKey(rs.getString("event_key"));
-                    txEvent.setEvent(eventTypeHandler.deserialize(rs.getString("event_content")));
+                    txEvent.setEvent(eventTypeSerializer.deserialize(rs.getString("event_content"), Event.class));
                     txEvent.setStatus(TransactionalEvent.Status.FROM_STATUS.requireOf(rs.getObject("status", Integer.class)));
 
                     txEvent.setCurrentRetryTimes(rs.getObject("current_retry_times", Integer.class));
