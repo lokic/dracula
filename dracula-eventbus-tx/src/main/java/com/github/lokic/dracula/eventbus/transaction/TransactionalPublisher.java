@@ -23,6 +23,7 @@ public class TransactionalPublisher<E extends IntegrationEvent> implements Publi
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             targetPublisher.publish(event);
         } else {
+            TransactionalEventQueue.registerEvent(management, targetPublisher, event);
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
                 public void beforeCommit(boolean readOnly) {
@@ -31,7 +32,7 @@ public class TransactionalPublisher<E extends IntegrationEvent> implements Publi
 
                 @Override
                 public void afterCommit() {
-                    TransactionalEventQueue.publishEvents();
+                    TransactionalEventQueue.publishEvents(management);
                 }
 
                 @Override
@@ -39,7 +40,6 @@ public class TransactionalPublisher<E extends IntegrationEvent> implements Publi
                     TransactionalEventQueue.clear();
                 }
             });
-            TransactionalEventQueue.registerEvent(targetPublisher, event);
         }
     }
 

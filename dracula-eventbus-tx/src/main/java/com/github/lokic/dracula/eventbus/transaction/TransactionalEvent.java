@@ -7,7 +7,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class TransactionalEvent {
+public class TransactionalEvent<E extends Event> {
 
     private Long id;
 
@@ -31,8 +31,7 @@ public class TransactionalEvent {
 
     private String eventKey;
 
-    private Event event;
-
+    private E event;
 
     private String creator;
 

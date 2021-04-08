@@ -45,25 +45,7 @@ public class TransactionalEventManagement {
                 .ifPresent(publisher -> publisher.publish(event));
     }
 
-    public void save(List<? extends Event> events){
-
-        List<TransactionalEvent> transactionalEvents = events.stream()
-                .map(event -> {
-                    TransactionalEvent txEvent = new TransactionalEvent();
-                    txEvent.setInitBackoff(DEFAULT_INIT_BACKOFF);
-                    txEvent.setBackoffFactor(DEFAULT_BACKOFF_FACTOR);
-                    txEvent.setCurrentRetryTimes(0);
-                    txEvent.setMaxRetryTimes(DEFAULT_MAX_RETRY_TIMES);
-                    txEvent.setNextRetryTime(calculateNextRetryTime(LocalDateTime.now(),
-                            DEFAULT_INIT_BACKOFF, DEFAULT_BACKOFF_FACTOR, 0));
-                    txEvent.setEvent(event);
-                    txEvent.setStatus(TransactionalEvent.Status.PENDING);
-                    txEvent.setCreator(getBusinessKey());
-                    txEvent.setEditor(getBusinessKey());
-                    return txEvent;
-                })
-                .collect(Collectors.toList());
-
+    public void save(List<TransactionalEvent<? extends Event>> transactionalEvents){
         repository.save(transactionalEvents);
     }
 
@@ -106,7 +88,7 @@ public class TransactionalEventManagement {
         return base.plusSeconds((long) delta);
     }
 
-    public void handleSuccess(TransactionalEvent txEvent){
+    public void handleSuccess(TransactionalEvent<? extends Event> txEvent){
         txEvent.setCurrentRetryTimes(calculateRetryTimes(txEvent));
         txEvent.setStatus(TransactionalEvent.Status.SUCCESS);
         txEvent.setNextRetryTime(END);
@@ -114,7 +96,14 @@ public class TransactionalEventManagement {
         repository.updateStatus(txEvent);
     }
 
-    public void handleFail(TransactionalEvent txEvent, Exception ex){
+    public void handleSuccess(List<TransactionalEvent<? extends Event>> txEvents) {
+        List<Long> ids = txEvents.stream()
+                .map(TransactionalEvent::getId)
+                .collect(Collectors.toList());
+        repository.updateSuccessByEventIds(getBusinessKey(), END, ids);
+    }
+
+    public void handleFail(TransactionalEvent<? extends Event> txEvent, Exception ex){
         Integer currentRetryTimes = calculateRetryTimes(txEvent);
         TransactionalEvent.Status status = calculateStatus(txEvent);
         // 计算下一次的执行时间
@@ -132,13 +121,13 @@ public class TransactionalEventManagement {
         repository.updateStatus(txEvent);
     }
 
-    public TransactionalEvent.Status calculateStatus(TransactionalEvent txEvent) {
+    public TransactionalEvent.Status calculateStatus(TransactionalEvent<? extends Event> txEvent) {
         return calculateRetryTimes(txEvent).compareTo(txEvent.getMaxRetryTimes()) >= 0
                 ? TransactionalEvent.Status.FAIL
                 : TransactionalEvent.Status.PENDING;
     }
 
-    public Integer calculateRetryTimes(TransactionalEvent txEvent) {
+    public Integer calculateRetryTimes(TransactionalEvent<? extends Event> txEvent) {
         return txEvent.getCurrentRetryTimes().compareTo(txEvent.getMaxRetryTimes()) >= 0
                 ? txEvent.getMaxRetryTimes()
                 : txEvent.getCurrentRetryTimes() + 1;
@@ -166,6 +155,21 @@ public class TransactionalEventManagement {
         } catch (UnknownHostException e) {
         }
         return sb.toString();
+    }
+
+    public <E extends Event> TransactionalEvent<E> convert(E event) {
+        TransactionalEvent<E> txEvent = new TransactionalEvent<>();
+        txEvent.setInitBackoff(DEFAULT_INIT_BACKOFF);
+        txEvent.setBackoffFactor(DEFAULT_BACKOFF_FACTOR);
+        txEvent.setCurrentRetryTimes(0);
+        txEvent.setMaxRetryTimes(DEFAULT_MAX_RETRY_TIMES);
+        txEvent.setNextRetryTime(calculateNextRetryTime(LocalDateTime.now(),
+                DEFAULT_INIT_BACKOFF, DEFAULT_BACKOFF_FACTOR, 0));
+        txEvent.setEvent(event);
+        txEvent.setStatus(TransactionalEvent.Status.PENDING);
+        txEvent.setCreator(getBusinessKey());
+        txEvent.setEditor(getBusinessKey());
+        return txEvent;
     }
 
 
