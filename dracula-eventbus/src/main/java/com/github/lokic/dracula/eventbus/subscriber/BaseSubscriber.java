@@ -6,15 +6,15 @@ import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SubscriptionSubscriber<E extends Event> implements Subscriber<E> {
+public abstract class BaseSubscriber<E extends Event> implements Subscriber<E> {
 
     public final List<Subscription<E>> subscriptions;
 
-    public SubscriptionSubscriber() {
+    public BaseSubscriber() {
         this.subscriptions = new ArrayList<>();
     }
 
-    public SubscriptionSubscriber(Subscription<E> subscriptionImpl) {
+    public BaseSubscriber(Subscription<E> subscriptionImpl) {
         this();
         addSubscription(subscriptionImpl);
     }
