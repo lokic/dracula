@@ -112,7 +112,7 @@ public class PublisherManagement {
      * @param publisher
      * @param <E>
      */
-    public <E extends Event> void addPublisherIfNotExist(Class<E> eventClazz, Publisher<E> publisher) {
+    public <E extends Event> void addPublisherIfAbsent(Class<E> eventClazz, Publisher<E> publisher) {
         if (!hasPublishersForEvent(eventClazz)) {
             publishers.put(eventClazz, publisher);
         }

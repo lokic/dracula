@@ -26,12 +26,12 @@ public class LocalEventBus implements EventBus {
     @Override
     public <E extends Event> void register(Class<E> eventClazz, EventHandler<E> handler, List<InterceptorAttribute<E>> interceptorAttributes, EventHandlerAttribute eventHandlerAttribute) {
         Subscriber<E> subscriber = subscriberManagement.addSubscription(eventClazz, new SubscriptionImpl<>(eventClazz, handler, interceptorAttributes, eventHandlerAttribute));
-        publisherManagement.addPublisherIfNotExist(eventClazz, new LocalPublisher<>(subscriber));
+        publisherManagement.addPublisherIfAbsent(eventClazz, new LocalPublisher<>(subscriber));
     }
 
     @Override
     public <E extends Event> void unregister(EventHandler<E> handler) {
-        subscriberManagement.removeSubscriber(handler);
+        subscriberManagement.removeEventHandler(handler);
     }
 
     @Override

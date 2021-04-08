@@ -37,7 +37,7 @@ public class IntegrationEventBus implements EventBus {
 
     @Override
     public <E extends Event> void unregister(EventHandler<E> handler) {
-        subscriberManagement.removeSubscriber(handler);
+        subscriberManagement.removeEventHandler(handler);
     }
 
     @Override

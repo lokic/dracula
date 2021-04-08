@@ -22,13 +22,16 @@ public class SubscriberManagement {
         return subscriber;
     }
 
-    public <E extends Event> void removeSubscriber(EventHandler<E> eventHandler) {
-        subscribers.values().forEach(subscriber -> subscriber.removeSubscription(Types.cast(eventHandler)));
+    public <E extends Event> void removeEventHandler(EventHandler<E> eventHandler) {
+        subscribers.values().forEach(subscriber -> subscriber.removeEventHandler(Types.cast(eventHandler)));
     }
 
     public <E extends Event> void replaceSubscriber(Class<E> eClazz, BaseSubscriber<E> subscriber) {
         BaseSubscriber<E> oldSub = getSubscriber(eClazz);
-        oldSub.getSubscriptions().forEach(subscriber::addSubscription);
+        oldSub.getSubscriptions().forEach(subscription -> {
+            subscriber.addSubscription(subscription);
+            oldSub.removeSubscription(subscription);
+        });
         subscribers.put(eClazz, subscriber);
     }
 
