@@ -1,7 +1,7 @@
 package com.github.lokic.dracula.eventbus.ddd;
 
 import com.github.lokic.dracula.event.IntegrationEvent;
-import com.github.lokic.dracula.eventbus.ddd.integration.Encoder;
+import com.github.lokic.dracula.eventbus.ddd.integration.Serializer;
 import com.github.lokic.dracula.eventbus.ddd.integration.kafka.AbstractKafkaIntegrationPublisher;
 import com.github.lokic.dracula.eventbus.ddd.integration.kafka.Partitioner;
 import com.github.lokic.dracula.eventbus.publisher.PublisherManagement;
@@ -53,8 +53,8 @@ public class KafkaIntegrationPublisherTest {
 
     public static class ProxyKafkaIntegrationPublisher<E extends IntegrationEvent> extends AbstractKafkaIntegrationPublisher<E> {
 
-        public ProxyKafkaIntegrationPublisher(String topic, Partitioner<E> keyMapping, Encoder<E> encoder) {
-            super(topic, keyMapping, encoder);
+        public ProxyKafkaIntegrationPublisher(String topic, Partitioner<E> keyMapping, Serializer<E> serializer) {
+            super(topic, keyMapping, serializer);
         }
 
         @Override

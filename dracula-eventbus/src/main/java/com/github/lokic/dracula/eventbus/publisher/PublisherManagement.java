@@ -1,16 +1,10 @@
 package com.github.lokic.dracula.eventbus.publisher;
 
-import com.github.lokic.javaext.Types;
-import com.google.common.reflect.TypeToken;
 import com.github.lokic.dracula.event.Event;
+import com.github.lokic.dracula.eventbus.GenericTypes;
+import com.github.lokic.javaext.Types;
 
-import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,73 +31,9 @@ public class PublisherManagement {
     }
 
     public <E extends Event> void addPublisher(Publisher<E> publisher) {
-        Class<E> eventClazz = Types.cast(findEventClassSmart(publisher));
+        Class<E> eventClazz = Types.cast(GenericTypes.getGeneric(publisher, Publisher.class));
         addPublisher(eventClazz, publisher);
     }
-
-
-    Class<?> findEventClassSmart(Publisher<?> publisher) {
-        // Not a lambda
-        if (isNotLambda(publisher)) {
-            return findEventClass(publisher);
-        } else {
-            return findEventClassOfLambda(publisher);
-        }
-    }
-
-    private boolean isNotLambda(Publisher<?> publisher){
-        String functionClassName = publisher.getClass().getName();
-        int lambdaMarkerIndex = functionClassName.indexOf("$$Lambda$");
-        return lambdaMarkerIndex == -1;
-    }
-
-    private Class<?> findEventClass(Publisher<?> publisher) {
-        return TypeToken.of(publisher.getClass())
-               .resolveType(Publisher.class.getTypeParameters()[0])
-               .getRawType();
-//        return publisher.getClass().getMethods()[0].getParameterTypes()[0];
-    }
-
-    /**
-     * https://github.com/benjiman/lambda-type-references/blob/master/src/main/java/com/benjiweber/typeref/MethodFinder.java
-     *
-     * @param lambdaPublisher
-     * @return
-     */
-    private  Class<?> findEventClassOfLambda(Publisher<?> lambdaPublisher){
-        return TypeToken.of(method(lambdaPublisher).getParameters()[0].getParameterizedType()).getRawType();
-    }
-
-    private static Method method(Object lambda) {
-        SerializedLambda serialized = serialized(lambda);
-        Class<?> containingClass = getContainingClass(serialized);
-        return Arrays.stream(containingClass.getDeclaredMethods())
-                .filter(method -> Objects.equals(method.getName(), serialized.getImplMethodName()))
-                .findFirst()
-                .orElseThrow(RuntimeException::new);
-    }
-
-    private static SerializedLambda serialized(Object lambda) {
-        try {
-            Method writeMethod = lambda.getClass().getDeclaredMethod("writeReplace");
-            writeMethod.setAccessible(true);
-            return (SerializedLambda) writeMethod.invoke(lambda);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    private static Class<?> getContainingClass(SerializedLambda lambda) {
-        try {
-            String className = lambda.getImplClass().replaceAll("/", ".");
-            return Class.forName(className);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
 
     /**
      * 如果publisher不存在，则添加；否则忽略
@@ -126,8 +56,8 @@ public class PublisherManagement {
         return publishers.containsKey(eventClazz);
     }
 
-    private <E extends Event> Publisher<E> findPublisher(Class<E> eClazz) {
-        return Types.cast(publishers.get(eClazz));
+    private <E extends Event> Publisher<E> findPublisher(Class<E> eventClazz) {
+        return Types.cast(publishers.get(eventClazz));
     }
 
     public <E extends Event> void processEvent(E event) {

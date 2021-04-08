@@ -16,8 +16,8 @@ public class SubscriberManagement {
         this.subscribers = new ConcurrentHashMap<>();
     }
 
-    public <E extends Event> BaseSubscriber<E> addSubscription(Class<E> eClazz, Subscription<E> subscription) {
-        BaseSubscriber<E> subscriber = Types.cast(subscribers.computeIfAbsent(eClazz, e -> new LocalSubscriber<>()));
+    public <E extends Event> BaseSubscriber<E> addSubscription(Class<E> eventClazz, Subscription<E> subscription) {
+        BaseSubscriber<E> subscriber = Types.cast(subscribers.computeIfAbsent(eventClazz, e -> new LocalSubscriber<>()));
         subscriber.addSubscription(subscription);
         return subscriber;
     }
@@ -26,17 +26,15 @@ public class SubscriberManagement {
         subscribers.values().forEach(subscriber -> subscriber.removeEventHandler(Types.cast(eventHandler)));
     }
 
-    public <E extends Event> void replaceSubscriber(Class<E> eClazz, BaseSubscriber<E> subscriber) {
-        BaseSubscriber<E> oldSub = getSubscriber(eClazz);
-        oldSub.getSubscriptions().forEach(subscription -> {
-            subscriber.addSubscription(subscription);
-            oldSub.removeSubscription(subscription);
-        });
-        subscribers.put(eClazz, subscriber);
+    public <E extends Event> void replaceSubscriber(Class<E> eventClazz, BaseSubscriber<E> subscriber) {
+        BaseSubscriber<E> oldSub = getSubscriber(eventClazz);
+        oldSub.getSubscriptions().forEach(subscriber::addSubscription);
+        oldSub.clear();
+        subscribers.put(eventClazz, subscriber);
     }
 
-    public <E extends Event> BaseSubscriber<E> getSubscriber(Class<E> eClazz) {
-        return Types.cast(subscribers.computeIfAbsent(eClazz, e -> new LocalSubscriber<>()));
+    public <E extends Event> BaseSubscriber<E> getSubscriber(Class<E> eventClazz) {
+        return Types.cast(subscribers.computeIfAbsent(eventClazz, e -> new LocalSubscriber<>()));
     }
 
 }

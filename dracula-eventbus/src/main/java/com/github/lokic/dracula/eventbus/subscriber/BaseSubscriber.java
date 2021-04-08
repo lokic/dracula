@@ -31,10 +31,9 @@ public abstract class BaseSubscriber<E extends Event> implements Subscriber<E> {
         subscriptions.removeIf(s -> s.getHandler() == eventHandler);
     }
 
-    public void removeSubscription(Subscription<E> subscription){
-        subscriptions.removeIf(s -> s == subscription);
+    public void clear() {
+        subscriptions.clear();
     }
-
 
     @Override
     public void subscribe(E event) {
