@@ -17,7 +17,7 @@ public class SubscriberManagement {
     }
 
     public <E extends Event> SubscriptionSubscriber<E> addSubscription(Class<E> eClazz, Subscription<E> subscription) {
-        SubscriptionSubscriber<E> subscriber = Types.cast(subscribers.computeIfAbsent(eClazz, e -> new InMemorySubscriber<>()));
+        SubscriptionSubscriber<E> subscriber = Types.cast(subscribers.computeIfAbsent(eClazz, e -> new LocalSubscriber<>()));
         subscriber.addSubscription(subscription);
         return subscriber;
     }
@@ -33,7 +33,7 @@ public class SubscriberManagement {
     }
 
     public <E extends Event> SubscriptionSubscriber<E> getSubscriber(Class<E> eClazz) {
-        return Types.cast(subscribers.get(eClazz));
+        return Types.cast(subscribers.computeIfAbsent(eClazz, e -> new LocalSubscriber<>()));
     }
 
 }
