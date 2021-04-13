@@ -9,6 +9,7 @@ import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
 import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
 
 import java.util.List;
+import java.util.Objects;
 
 public class IntegrationEventBus implements EventBus {
 
@@ -28,11 +29,7 @@ public class IntegrationEventBus implements EventBus {
 
     public <E extends IntegrationEvent> void connect(Class<E> eventClazz, IntegrationSubscriber<E> subscriber) {
         Subscriber<E> s = subscriberManagement.getSubscriber(eventClazz);
-        if (s instanceof IntegrationSubscriber) {
-            throw new IllegalArgumentException(eventClazz.getName() + " already connect IntegrationSubscriber");
-        } else {
-            subscriberManagement.replaceSubscriber(eventClazz, subscriber);
-        }
+        subscriber.connect(Objects.requireNonNull(s));
     }
 
     @Override

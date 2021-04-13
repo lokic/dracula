@@ -14,25 +14,12 @@ public abstract class BaseSubscriber<E extends Event> implements Subscriber<E> {
         this.subscriptions = new ArrayList<>();
     }
 
-    public BaseSubscriber(Subscription<E> subscriptionImpl) {
-        this();
-        addSubscription(subscriptionImpl);
-    }
-
     public void addSubscription(Subscription<E> subscription) {
         subscriptions.add(subscription);
     }
 
-    public List<Subscription<E>> getSubscriptions() {
-        return subscriptions;
-    }
-
     public void removeEventHandler(EventHandler<E> eventHandler) {
         subscriptions.removeIf(s -> s.getHandler() == eventHandler);
-    }
-
-    public void clear() {
-        subscriptions.clear();
     }
 
     @Override
