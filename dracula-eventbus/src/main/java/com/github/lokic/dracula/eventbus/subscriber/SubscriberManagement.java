@@ -26,6 +26,13 @@ public class SubscriberManagement {
         subscribers.values().forEach(subscriber -> subscriber.removeEventHandler(Types.cast(eventHandler)));
     }
 
+    public <E extends Event> void replaceSubscriber(Class<E> eventClazz, BaseSubscriber<E> subscriber) {
+        BaseSubscriber<E> oldSub = getSubscriber(eventClazz);
+        oldSub.getSubscriptions().forEach(subscriber::addSubscription);
+        oldSub.clear();
+        subscribers.put(eventClazz, subscriber);
+    }
+
     public <E extends Event> BaseSubscriber<E> getSubscriber(Class<E> eventClazz) {
         return Types.cast(subscribers.computeIfAbsent(eventClazz, e -> new LocalSubscriber<>()));
     }
