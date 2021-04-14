@@ -1,10 +1,10 @@
 package com.github.lokic.dracula.eventbus.ddd.integration.kafka;
 
 import com.github.lokic.dracula.event.IntegrationEvent;
-import com.github.lokic.dracula.eventbus.ddd.integration.Serializer;
 import com.github.lokic.dracula.eventbus.ddd.integration.IntegrationPublisher;
+import com.github.lokic.dracula.eventbus.ddd.integration.Serializer;
 
-public abstract class AbstractKafkaIntegrationPublisher<E extends IntegrationEvent> implements IntegrationPublisher<E> {
+public abstract class AbstractKafkaPublisher<E extends IntegrationEvent> implements IntegrationPublisher<E> {
 
     private final Serializer<E> serializer;
 
@@ -13,7 +13,7 @@ public abstract class AbstractKafkaIntegrationPublisher<E extends IntegrationEve
     private final Partitioner<E> partitioner;
 
 
-    public AbstractKafkaIntegrationPublisher(String topic, Partitioner<E> partitioner, Serializer<E> serializer) {
+    public AbstractKafkaPublisher(String topic, Partitioner<E> partitioner, Serializer<E> serializer) {
         this.serializer = serializer;
         this.topic = topic;
         this.partitioner = partitioner;

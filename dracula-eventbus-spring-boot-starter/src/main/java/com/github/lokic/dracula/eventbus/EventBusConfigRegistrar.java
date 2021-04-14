@@ -1,13 +1,11 @@
 package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
+import com.github.lokic.dracula.eventbus.broker.DefaultBrokerManager;
 import com.github.lokic.dracula.eventbus.executors.EventExecutor;
 import com.github.lokic.dracula.eventbus.handlers.EventHandler;
-import com.github.lokic.dracula.eventbus.interceptors.Interceptor;
-import com.github.lokic.dracula.eventbus.publisher.Publisher;
-import com.github.lokic.dracula.eventbus.publisher.PublisherManagement;
-import com.github.lokic.dracula.eventbus.subscriber.SubscriberManagement;
 import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
+import com.github.lokic.dracula.eventbus.interceptors.Interceptor;
 import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
 import com.github.lokic.dracula.eventbus.interceptors.extensions.ExtensionInterceptor;
 import com.github.lokic.dracula.eventbus.interceptors.internals.InternalInterceptorRegistry;
@@ -16,8 +14,14 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.config.*;
-import org.springframework.beans.factory.support.*;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.AnnotationConfigUtils;
@@ -111,13 +115,6 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
         scanner.setResourceLoader(resourceLoader);
         Set<String> basePackages = getBasePackages(importingClassMetadata);
         scanner.doScan(basePackages.toArray(new String[0]));
-
-        PublisherManagement publisherManagement = beanFactory.getBean(PublisherManagement.class);
-        Map<String, Publisher<?>> publisherMap = Types.cast(((ApplicationContext) resourceLoader).getBeansOfType(Publisher.class));
-
-        for (Publisher<?> publisher : publisherMap.values()) {
-            publisherManagement.addPublisher(publisher);
-        }
     }
 
 
@@ -152,8 +149,7 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
      * 注册event bus到spring
      */
     private EventBus getOrRegisterEventBusToSpring(BeanDefinitionRegistry registry, Class<? extends EventBus> eventBusClazz) {
-        registerToSpring(registry, PublisherManagement.class);
-        registerToSpring(registry, SubscriberManagement.class);
+        registerToSpring(registry, DefaultBrokerManager.class);
         return registerToSpring(registry, eventBusClazz);
     }
 
