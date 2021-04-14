@@ -1,5 +1,6 @@
 package com.github.lokic.dracula.eventbus;
 
+import com.github.lokic.javaext.Types;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.invoke.SerializedLambda;
@@ -10,11 +11,11 @@ import java.util.Objects;
 public class GenericTypes {
 
 
-    public static Class<?> getGeneric(Object object, Class<?> clazz) {
+    public static <E> Class<E> getGeneric(Object object, Class<?> clazz) {
         if (isLambda(object)) {
-            return getGenericForLambda(object);
+            return Types.cast(getGenericForLambda(object));
         } else {
-            return getGenericForObject(object, clazz);
+            return  Types.cast(getGenericForObject(object, clazz));
         }
     }
 

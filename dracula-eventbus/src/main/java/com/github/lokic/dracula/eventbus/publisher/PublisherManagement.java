@@ -31,7 +31,7 @@ public class PublisherManagement {
     }
 
     public <E extends Event> void addPublisher(Publisher<E> publisher) {
-        Class<E> eventClazz = Types.cast(GenericTypes.getGeneric(publisher, Publisher.class));
+        Class<E> eventClazz = GenericTypes.getGeneric(publisher, Publisher.class);
         addPublisher(eventClazz, publisher);
     }
 
