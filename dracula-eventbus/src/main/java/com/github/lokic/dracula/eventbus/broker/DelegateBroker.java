@@ -10,28 +10,27 @@ import com.github.lokic.dracula.eventbus.subscriber.Subscription;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InMemoryBroker<E extends Event> implements ForwardingBroker<E> {
+public class DelegateBroker<E extends Event> implements ForwardingBroker<E> {
 
     private final List<Subscription<E>> subscriptions;
 
-    private final Publisher<E> publisher;
-    private final Subscriber<E> subscriber;
+    private final Publisher<E> targetPublisher;
 
-    public InMemoryBroker() {
+    private final Subscriber<E> targetSubscriber;
+
+    public DelegateBroker(Publisher<E> targetPublisher, Subscriber<E> targetSubscriber) {
         this.subscriptions = new ArrayList<>();
-        this.publisher = this::subscribe;
-        this.subscriber = (ForwardingSubscriptionGroup<E>) () -> subscriptions;
+        this.targetPublisher = targetPublisher != null ? targetPublisher : this::subscribe;
+        this.targetSubscriber = targetSubscriber != null ? targetSubscriber : (ForwardingSubscriptionGroup<E>) () -> subscriptions;
     }
 
     @Override
     public Publisher<E> delegatePublisher() {
-        return publisher;
+        return targetPublisher;
     }
 
     @Override
     public Subscriber<E> delegateSubscriber() {
-        return subscriber;
+        return targetSubscriber;
     }
-
 }
-

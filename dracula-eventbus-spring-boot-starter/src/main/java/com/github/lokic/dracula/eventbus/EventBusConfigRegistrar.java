@@ -1,6 +1,7 @@
 package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
+import com.github.lokic.dracula.eventbus.broker.Broker;
 import com.github.lokic.dracula.eventbus.broker.DefaultBrokerManager;
 import com.github.lokic.dracula.eventbus.executors.EventExecutor;
 import com.github.lokic.dracula.eventbus.handlers.EventHandler;
@@ -9,6 +10,8 @@ import com.github.lokic.dracula.eventbus.interceptors.Interceptor;
 import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
 import com.github.lokic.dracula.eventbus.interceptors.extensions.ExtensionInterceptor;
 import com.github.lokic.dracula.eventbus.interceptors.internals.InternalInterceptorRegistry;
+import com.github.lokic.dracula.eventbus.publisher.Publisher;
+import com.github.lokic.dracula.eventbus.subscriber.Subscriber;
 import com.github.lokic.javaext.Types;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -73,7 +76,7 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
                 Class<? extends EventBus> eventBusClazz = Types.cast(clazz);
                 EventBus eventBus = getOrRegisterEventBusToSpring(registry, eventBusClazz);
                 registerEventHandler(eventBus, importingClassMetadata, registry);
-                registerPublisher(importingClassMetadata, registry);
+                registerBroker(importingClassMetadata, registry);
             }
 
         }
@@ -98,7 +101,7 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
                         .map(InterceptorAttribute::new)
                         .collect(Collectors.toList());
 
-        Map<String, EventHandler<?>> handlerMap = Types.cast(((ApplicationContext) resourceLoader).getBeansOfType(EventHandler.class));
+        Map<String, EventHandler<?>> handlerMap = Types.cast(getBeansOfComponent(EventHandler.class, EventHandlerComponent.class));
         for (EventHandler<?> eventHandler : handlerMap.values()) {
             EventHandlerComponent eventHandlerComponent = AnnotationUtils.findAnnotation(eventHandler.getClass(), EventHandlerComponent.class);
             if (eventHandlerComponent != null) {
@@ -110,13 +113,27 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
 
 
     @SuppressWarnings("unchecked")
-    private void registerPublisher(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        PublisherScanner scanner = new PublisherScanner(registry);
+    private void registerBroker(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+        BrokerScanner scanner = new BrokerScanner(registry);
         scanner.setResourceLoader(resourceLoader);
         Set<String> basePackages = getBasePackages(importingClassMetadata);
         scanner.doScan(basePackages.toArray(new String[0]));
+
+        DefaultBrokerManager brokerManager = beanFactory.getBean(DefaultBrokerManager.class);
+        Map<String, Publisher<?>> publisherMap = Types.cast(getBeansOfComponent(Publisher.class, PublisherComponent.class));
+        Map<String, Subscriber<?>> subscriberMap = Types.cast(getBeansOfComponent(Subscriber.class, SubscriberComponent.class));
+        Map<String, Broker<?>> brokerMap = Types.cast(getBeansOfComponent(Broker.class, BrokerComponent.class));
+
+        brokerManager.addWithPublishersAndSubscribers(new ArrayList<>(publisherMap.values()), new ArrayList<>(subscriberMap.values()));
+        brokerManager.addWithBrokers(new ArrayList<>(brokerMap.values()));
     }
 
+    private <T> Map<String, T> getBeansOfComponent(Class<T> componentType, Class<? extends Annotation> annotationType) {
+        return ((ApplicationContext) resourceLoader).getBeansOfType(componentType).entrySet()
+                .stream()
+                .filter(e -> AnnotationUtils.findAnnotation(e.getValue().getClass(), annotationType) != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
 
     private Stream<Interceptor<? extends Event>> getAllInternalInterceptors() {
         return InternalInterceptorRegistry.getAll().stream();
@@ -228,14 +245,16 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
     }
 
 
-    private static class PublisherScanner extends ClassPathBeanDefinitionScanner {
-        PublisherScanner(BeanDefinitionRegistry registry) {
+    private static class BrokerScanner extends ClassPathBeanDefinitionScanner {
+        BrokerScanner(BeanDefinitionRegistry registry) {
             super(registry);
         }
 
         @Override
         protected void registerDefaultFilters() {
             addIncludeFilter(new AnnotationTypeFilter(PublisherComponent.class));
+            addIncludeFilter(new AnnotationTypeFilter(SubscriberComponent.class));
+            addIncludeFilter(new AnnotationTypeFilter(BrokerComponent.class));
         }
 
         @Override
