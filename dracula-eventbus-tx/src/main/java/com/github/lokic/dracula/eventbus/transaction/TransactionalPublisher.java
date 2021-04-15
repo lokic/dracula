@@ -9,13 +9,13 @@ public class TransactionalPublisher<E extends IntegrationEvent> implements Publi
 
     private final Publisher<E> targetPublisher;
 
-    private final TransactionalEventManagement management;
+    private final TransactionalEventManager manager;
 
     public TransactionalPublisher(Publisher<E> targetPublisher,
-                                  TransactionalEventManagement management) {
+                                  TransactionalEventManager manager) {
         this.targetPublisher = targetPublisher;
-        this.management = management;
-        this.management.addPublisher(targetPublisher);
+        this.manager = manager;
+        this.manager.addPublisher(targetPublisher);
     }
 
     @Override
@@ -23,16 +23,16 @@ public class TransactionalPublisher<E extends IntegrationEvent> implements Publi
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             targetPublisher.publish(event);
         } else {
-            TransactionalEventQueue.registerEvent(management, targetPublisher, event);
+            TransactionalEventQueue.registerEvent(manager, targetPublisher, event);
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
                 public void beforeCommit(boolean readOnly) {
-                    TransactionalEventQueue.save(management);
+                    TransactionalEventQueue.save(manager);
                 }
 
                 @Override
                 public void afterCommit() {
-                    TransactionalEventQueue.publishEvents(management);
+                    TransactionalEventQueue.publishEvents(manager);
                 }
 
                 @Override

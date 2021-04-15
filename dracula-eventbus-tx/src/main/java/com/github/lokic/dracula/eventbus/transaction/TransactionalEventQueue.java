@@ -18,7 +18,7 @@ public class TransactionalEventQueue {
 
     private static final ThreadLocal<AtomicBoolean> PUBLISHED = ThreadLocal.withInitial(() -> new AtomicBoolean(false));
 
-    public static <E extends Event> void registerEvent(TransactionalEventManagement manager, Publisher<E> publisher, E event) {
+    public static <E extends Event> void registerEvent(TransactionalEventManager manager, Publisher<E> publisher, E event) {
         PublishableEvent<E> publishableEvent = new PublishableEvent<E>(publisher, manager.convert(event));
         PUBLISH_EVENTS.get().add(publishableEvent);
     }
@@ -29,7 +29,7 @@ public class TransactionalEventQueue {
         resetPublishedStatus();
     }
 
-    public static void publishEvents(TransactionalEventManagement manager) {
+    public static void publishEvents(TransactionalEventManager manager) {
         if (PUBLISHED.get().compareAndSet(false, true)) {
             PUBLISH_EVENTS.get().forEach(PublishableEvent::publish);
             try {
@@ -41,7 +41,7 @@ public class TransactionalEventQueue {
         }
     }
 
-    public static void save(TransactionalEventManagement manager) {
+    public static void save(TransactionalEventManager manager) {
         if (SAVED.get().compareAndSet(false, true)) {
             manager.save(getTxEvents());
         }

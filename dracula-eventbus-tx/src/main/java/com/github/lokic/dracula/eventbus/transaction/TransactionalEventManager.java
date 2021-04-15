@@ -2,15 +2,16 @@ package com.github.lokic.dracula.eventbus.transaction;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.publisher.Publisher;
-import com.github.lokic.dracula.eventbus.publisher.PublisherManagement;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.net.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.stream.Collectors;
 
-public class TransactionalEventManagement {
+public class TransactionalEventManager {
 
     private static final int SCHEDULED_TASK_QUERY_LIMIT = 100;
 
@@ -22,7 +23,7 @@ public class TransactionalEventManagement {
 
     private static final LocalDateTime END = LocalDateTime.of(2100, 1, 1, 0, 0, 0);
 
-    private final PublisherManagement targetPublisherManagement;
+    private final PublisherManager targetPublisherManager;
 
     private final TransactionalEventRepository repository;
 
@@ -34,14 +35,14 @@ public class TransactionalEventManagement {
     private String businessKey;
 
 
-    public TransactionalEventManagement(TransactionalEventRepository repository) {
+    public TransactionalEventManager(TransactionalEventRepository repository) {
         this.repository = repository;
         this.localIp = localIp();
-        this.targetPublisherManagement = new PublisherManagement();
+        this.targetPublisherManager = new PublisherManager();
     }
 
     public <E extends Event> void send(E event){
-        targetPublisherManagement.findPublisherForEvent(event)
+        targetPublisherManager.findPublisherForEvent(event)
                 .ifPresent(publisher -> publisher.publish(event));
     }
 
@@ -76,7 +77,7 @@ public class TransactionalEventManagement {
 
 
     public <E extends Event> void addPublisher(Publisher<E> publisher) {
-        targetPublisherManagement.addPublisher(publisher);
+        targetPublisherManager.addPublisher(publisher);
     }
 
 

@@ -2,6 +2,7 @@ package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.event.IntegrationEvent;
+import com.github.lokic.dracula.eventbus.broker.BrokerManager;
 import com.github.lokic.dracula.eventbus.executors.AsyncEventExecutor;
 import com.github.lokic.dracula.eventbus.executors.SyncEventExecutor;
 import com.github.lokic.dracula.eventbus.executors.threadpool.GracefulSpringThreadPool;
@@ -9,15 +10,12 @@ import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import com.github.lokic.dracula.eventbus.handlers.HandlerContext;
 import com.github.lokic.dracula.eventbus.interceptors.extensions.ExtensionInterceptor;
 import com.github.lokic.dracula.eventbus.publisher.Publisher;
-import com.github.lokic.dracula.eventbus.publisher.PublisherManagement;
-import com.github.lokic.dracula.eventbus.subscriber.SubscriberManagement;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.powermock.reflect.Whitebox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +24,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 @RunWith(PowerMockRunner.class)
@@ -49,7 +46,7 @@ public class EnableEventBusTest {
             softly.assertThat(context.getBeansOfType(EventHandler.class)).hasSize(2);
             softly.assertThat(context.getBeansOfType(SyncEventExecutor.class)).hasSize(1);
             softly.assertThat(context.getBeansOfType(AsyncEventExecutor.class)).hasSize(1);
-            softly.assertThat(context.getBeansOfType(SubscriberManagement.class)).hasSize(1);
+            softly.assertThat(context.getBeansOfType(BrokerManager.class)).hasSize(1);
             softly.assertThat(context.getBeansOfType(TestIntegrationEventPublisher.class)).hasSize(1);
 
 
@@ -57,9 +54,6 @@ public class EnableEventBusTest {
             softly.assertThat(context.getBean(TestIntegrationEventPublisher.class).testService).isNotNull();
             softly.assertThat(context.getBean(Spy1EventHandler.class).testService).isNotNull();
 
-            // event bus
-            softly.assertThat((Map<?, ?>) Whitebox.getInternalState(context.getBean(SubscriberManagement.class), "subscribers")).hasSize(1);
-            softly.assertThat((Map<?, ?>) Whitebox.getInternalState(context.getBean(PublisherManagement.class), "publishers")).hasSize(2);
         });
     }
 
