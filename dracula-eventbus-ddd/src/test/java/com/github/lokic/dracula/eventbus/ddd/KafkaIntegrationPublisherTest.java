@@ -30,7 +30,7 @@ public class KafkaIntegrationPublisherTest {
     public void test_add() {
         brokerManager.getBroker(OrderCreated.class).publish(new OrderCreated());
         Mockito.verify(publisher, Mockito.times(1))
-                .send(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+                .send(Mockito.anyString());
     }
 
 
@@ -38,7 +38,7 @@ public class KafkaIntegrationPublisherTest {
     public void test_notAdd() {
         brokerManager.getBroker(OrderCancelled.class).publish(new OrderCancelled());
         Mockito.verify(publisher, Mockito.never())
-                .send(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+                .send(Mockito.anyString());
     }
 
     public static class TestBroker implements Broker<OrderCreated>, NonSubscriber<OrderCreated>, ForwardingPublisher<OrderCreated> {
@@ -75,7 +75,8 @@ public class KafkaIntegrationPublisherTest {
         }
 
         @Override
-        public void send(String topic, String key, String msg) {
+        public void send(String data) {
+
         }
     }
 }

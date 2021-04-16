@@ -4,7 +4,7 @@ import com.github.lokic.dracula.event.IntegrationEvent;
 import com.github.lokic.dracula.eventbus.ddd.integration.IntegrationPublisher;
 import com.github.lokic.dracula.eventbus.ddd.integration.Serializer;
 
-public abstract class AbstractKafkaPublisher<E extends IntegrationEvent> implements IntegrationPublisher<E> {
+public abstract class AbstractKafkaPublisher<E extends IntegrationEvent> extends IntegrationPublisher<E> {
 
     private final Serializer<E> serializer;
 
@@ -19,11 +19,9 @@ public abstract class AbstractKafkaPublisher<E extends IntegrationEvent> impleme
         this.partitioner = partitioner;
     }
 
+
     @Override
-    public void publish(E event) {
-        send(topic, partitioner.key(event), serializer.serialize(event));
+    public String serialize(E e) {
+        return serializer.serialize(e);
     }
-
-    public abstract void send(String topic, String key, String msg);
-
 }
