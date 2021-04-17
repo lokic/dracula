@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.lokic</groupId>
-            <artifactId>java-extensions</artifactId>
+            <artifactId>java-plus</artifactId>
             <version>0.0.1</version>
         </dependency>
     </dependencies>

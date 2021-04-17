@@ -1,6 +1,6 @@
 package com.github.lokic.dracula.eventbus;
 
-import com.github.lokic.javaext.Types;
+import com.github.lokic.javaplus.Types;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.invoke.SerializedLambda;

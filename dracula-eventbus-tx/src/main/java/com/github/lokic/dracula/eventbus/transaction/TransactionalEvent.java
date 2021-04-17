@@ -1,7 +1,7 @@
 package com.github.lokic.dracula.eventbus.transaction;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.javaext.Property;
+import com.github.lokic.javaplus.Property;
 import lombok.Data;
 
 import java.time.LocalDateTime;

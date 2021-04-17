@@ -31,13 +31,6 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.72</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.github.lokic</groupId>
-            <artifactId>java-extensions</artifactId>
-            <version>0.0.1</version>
-        </dependency>
-
     </dependencies>
 
 </project>

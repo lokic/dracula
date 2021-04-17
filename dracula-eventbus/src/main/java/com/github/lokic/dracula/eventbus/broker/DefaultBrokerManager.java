@@ -5,7 +5,7 @@ import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.GenericTypes;
 import com.github.lokic.dracula.eventbus.publisher.Publisher;
 import com.github.lokic.dracula.eventbus.subscriber.Subscriber;
-import com.github.lokic.javaext.Types;
+import com.github.lokic.javaplus.Types;
 import com.google.common.collect.Sets;
 
 import java.util.List;

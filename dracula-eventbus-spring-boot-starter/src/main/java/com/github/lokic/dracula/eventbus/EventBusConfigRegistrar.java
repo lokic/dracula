@@ -12,7 +12,7 @@ import com.github.lokic.dracula.eventbus.interceptors.extensions.ExtensionInterc
 import com.github.lokic.dracula.eventbus.interceptors.internals.InternalInterceptorRegistry;
 import com.github.lokic.dracula.eventbus.publisher.Publisher;
 import com.github.lokic.dracula.eventbus.subscriber.Subscriber;
-import com.github.lokic.javaext.Types;
+import com.github.lokic.javaplus.Types;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;

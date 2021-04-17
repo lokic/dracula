@@ -1,7 +1,7 @@
 package com.github.lokic.dracula.eventbus.interceptors;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.javaext.Collectors.Distinct;
+import com.github.lokic.javaplus.Collectors.Distinct;
 
 import java.util.List;
 import java.util.function.Predicate;

@@ -8,7 +8,7 @@ import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
 import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
 import com.github.lokic.dracula.eventbus.subscriber.Subscription;
 import com.github.lokic.dracula.eventbus.subscriber.SubscriptionImpl;
-import com.github.lokic.javaext.Types;
+import com.github.lokic.javaplus.Types;
 
 import java.util.List;
 

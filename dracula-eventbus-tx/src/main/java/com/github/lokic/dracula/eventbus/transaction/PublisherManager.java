@@ -3,7 +3,7 @@ package com.github.lokic.dracula.eventbus.transaction;
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.GenericTypes;
 import com.github.lokic.dracula.eventbus.publisher.Publisher;
-import com.github.lokic.javaext.Types;
+import com.github.lokic.javaplus.Types;
 
 import java.util.Map;
 import java.util.Optional;
