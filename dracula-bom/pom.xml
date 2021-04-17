@@ -37,6 +37,11 @@
                 <artifactId>dracula-ddd</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.lokic</groupId>
+                <artifactId>dracula-eventbus-tx</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
