@@ -30,7 +30,7 @@ public class TransactionalEventMysqlRepositoryTest {
     }
 
     @Test
-    public void test() {
+    public void test_save() {
         DataSource dataSource = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
                 .addScript("classpath:schema.sql")
                 .build();
