@@ -2,7 +2,6 @@ package com.github.lokic.dracula.eventbus.transaction;
 
 import com.github.lokic.dracula.event.IntegrationEvent;
 import com.github.lokic.dracula.eventbus.publisher.Publisher;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 public class TransactionalPublisher<E extends IntegrationEvent> implements Publisher<E> {
@@ -24,22 +23,6 @@ public class TransactionalPublisher<E extends IntegrationEvent> implements Publi
             targetPublisher.publish(event);
         } else {
             TransactionalEventQueue.registerEvent(manager, targetPublisher, event);
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                @Override
-                public void beforeCommit(boolean readOnly) {
-                    TransactionalEventQueue.save(manager);
-                }
-
-                @Override
-                public void afterCommit() {
-                    TransactionalEventQueue.publishEvents(manager);
-                }
-
-                @Override
-                public void afterCompletion(int status) {
-                    TransactionalEventQueue.clear();
-                }
-            });
         }
     }
 
