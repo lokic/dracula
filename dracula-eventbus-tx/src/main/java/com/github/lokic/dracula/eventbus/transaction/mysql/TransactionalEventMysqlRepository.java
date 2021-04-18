@@ -42,7 +42,6 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
                         "INSERT dr_transactional_event " +
                         " (event_key, event_content, status, current_retry_times, max_retry_times, " +
                         "next_retry_time, init_backoff, backoff_factor, creator, editor) " +
-
                         " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ",
                 new BatchPreparedStatementSetter() {
                     @Override
