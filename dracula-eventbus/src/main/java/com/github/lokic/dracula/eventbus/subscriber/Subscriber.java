@@ -5,6 +5,11 @@ import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 
 import java.io.Serializable;
 
+/**
+ * 订阅器，用于订阅者连接Broker
+ *
+ * @param <E>
+ */
 public interface Subscriber<E extends Event> extends Serializable {
 
     void subscribe(E event);

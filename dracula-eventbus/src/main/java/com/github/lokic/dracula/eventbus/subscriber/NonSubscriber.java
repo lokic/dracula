@@ -4,6 +4,11 @@ package com.github.lokic.dracula.eventbus.subscriber;
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 
+/**
+ * 什么都不做的Subscriber，一般用于如果只有发送，没有订阅的场景
+ *
+ * @param <E>
+ */
 public interface NonSubscriber<E extends Event> extends Subscriber<E> {
 
     @Override

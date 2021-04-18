@@ -10,6 +10,11 @@ import com.github.lokic.dracula.eventbus.subscriber.Subscription;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 本地内存中的broker，用于本地消息的发送
+ *
+ * @param <E>
+ */
 public class InMemoryBroker<E extends Event> implements ForwardingBroker<E> {
 
     private final List<Subscription<E>> subscriptions;
