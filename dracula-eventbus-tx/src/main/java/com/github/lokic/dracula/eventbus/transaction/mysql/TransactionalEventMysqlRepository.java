@@ -39,7 +39,7 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
     public void save(List<TransactionalEvent<? extends Event>> events) {
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         jdbcTemplate.batchUpdate("" +
-                        "INSERT dr_transactional_event " +
+                        "INSERT INTO dr_transactional_event " +
                         " (event_key, event_content, status, current_retry_times, max_retry_times, " +
                         "next_retry_time, init_backoff, backoff_factor, creator, editor) " +
                         " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ",
@@ -68,13 +68,13 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
 
         List<Map<String, Object>> objectMap = generatedKeyHolder.getKeyList();
         for (int i = 0; i < events.size(); i++) {
-            TransactionalEvent event = events.get(i);
+            TransactionalEvent<? extends Event> event = events.get(i);
             event.setId(Long.valueOf(objectMap.get(i).get("GENERATED_KEY").toString()));
         }
     }
 
     @Override
-    public void updateStatus(TransactionalEvent txEvent) {
+    public void updateStatus(TransactionalEvent<? extends Event> txEvent) {
         jdbcTemplate.update("" +
                         "UPDATE dr_transactional_event " +
                         "SET status = ? , current_retry_times = ? , max_retry_times = ? , next_retry_time = ?, " +
@@ -110,10 +110,12 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
                         "current_retry_times, max_retry_times, next_retry_time, init_backoff, backoff_factor, " +
                         "creator, editor, created_time, updated_time " +
                         "FROM dr_transactional_event " +
-                        "WHERE ( next_retry_time BETWEEN ? AND ? ) AND status = 0 ",
+                        "WHERE ( next_retry_time BETWEEN ? AND ? ) AND status = 0 " +
+                        "LIMIT ?",
                 ps -> {
                     ps.setTimestamp(1, Timestamp.valueOf(min));
                     ps.setTimestamp(2, Timestamp.valueOf(max));
+                    ps.setInt(3, limit);
                 },
                 (rs, i) -> {
                     TransactionalEvent<Event> txEvent = new TransactionalEvent<>();
@@ -124,7 +126,7 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
 
                     txEvent.setCurrentRetryTimes(rs.getObject("current_retry_times", Integer.class));
                     txEvent.setMaxRetryTimes(rs.getObject("max_retry_times", Integer.class));
-                    txEvent.setNextRetryTime(rs.getTimestamp("current_retry_times").toLocalDateTime());
+                    txEvent.setNextRetryTime(rs.getTimestamp("next_retry_time").toLocalDateTime());
                     txEvent.setInitBackoff(rs.getObject("init_backoff", Long.class));
                     txEvent.setBackoffFactor(rs.getObject("backoff_factor", Integer.class));
 
