@@ -24,7 +24,7 @@ public class DefaultBrokerManager implements BrokerManager {
                 .collect(Collectors.toMap(p -> GenericTypes.getGeneric(p, Publisher.class), Function.identity()));
         Map<Class<? extends Event>, Subscriber<? extends Event>> subscriberMap = subscribers.stream()
                 .collect(Collectors.toMap(s -> GenericTypes.getGeneric(s, Subscriber.class), Function.identity()));
-        Sets.SetView<Class<? extends Event>> union = Sets.union(publisherMap.keySet(), publisherMap.keySet());
+        Sets.SetView<Class<? extends Event>> union = Sets.union(publisherMap.keySet(), subscriberMap.keySet());
         Map<Class<? extends Event>, Broker<? extends Event>> brokerMap = union.stream()
                 .collect(Collectors.toMap(Function.identity(), eClass -> new DelegatingBroker<>(
                         (Publisher<Event>) publisherMap.get(eClass), (Subscriber<Event>) subscriberMap.get(eClass))));
