@@ -49,13 +49,13 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
                         ps.setString(1, events.get(i).getEventKey());
                         ps.setString(2, eventTypeSerializer.serialize(events.get(i).getEvent()));
                         ps.setInt(3, events.get(i).getStatus().getStatus());
-                        ps.setInt(3, events.get(i).getCurrentRetryTimes());
-                        ps.setInt(4, events.get(i).getMaxRetryTimes());
-                        ps.setTimestamp(5, Timestamp.valueOf(events.get(i).getNextRetryTime()));
-                        ps.setObject(6, events.get(i).getInitBackoff());
-                        ps.setObject(7, events.get(i).getBackoffFactor());
-                        ps.setString(8, events.get(i).getCreator());
-                        ps.setString(9, events.get(i).getEditor());
+                        ps.setInt(4, events.get(i).getCurrentRetryTimes());
+                        ps.setInt(5, events.get(i).getMaxRetryTimes());
+                        ps.setTimestamp(6, Timestamp.valueOf(events.get(i).getNextRetryTime()));
+                        ps.setObject(7, events.get(i).getInitBackoff());
+                        ps.setObject(8, events.get(i).getBackoffFactor());
+                        ps.setString(9, events.get(i).getCreator());
+                        ps.setString(10, events.get(i).getEditor());
                     }
 
                     @Override
@@ -69,7 +69,7 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
         List<Map<String, Object>> objectMap = generatedKeyHolder.getKeyList();
         for (int i = 0; i < events.size(); i++) {
             TransactionalEvent<? extends Event> event = events.get(i);
-            event.setId(Long.valueOf(objectMap.get(i).get("GENERATED_KEY").toString()));
+            event.setId(Long.valueOf(objectMap.get(i).get("ID").toString()));
         }
     }
 

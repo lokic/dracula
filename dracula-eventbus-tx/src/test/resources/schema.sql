@@ -1,9 +1,11 @@
+DROP TABLE IF EXISTS `dr_transactional_event`;
+
 CREATE TABLE `dr_transactional_event`
 (
     id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    current_retry_times TINYINT     NOT NULL DEFAULT 0 COMMENT '当前重试次数',
-    max_retry_times     TINYINT     NOT NULL DEFAULT 5 COMMENT '最大重试次数',
-    next_retry_time     DATETIME    NOT NULL COMMENT '下一次调度时间',
+    current_retry_times TINYINT      NOT NULL DEFAULT 0 COMMENT '当前重试次数',
+    max_retry_times     TINYINT      NOT NULL DEFAULT 5 COMMENT '最大重试次数',
+    next_retry_time     DATETIME     NOT NULL COMMENT '下一次调度时间',
 
     event_key           VARCHAR(255) COMMENT '路由键',
     event_content       TEXT COMMENT '消息内容',
@@ -17,11 +19,4 @@ CREATE TABLE `dr_transactional_event`
     created_time        TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     updated_time        TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP (3)
 );
-
-INSERT INTO dr_transactional_event (event_key, event_content, status, current_retry_times, max_retry_times,
-                                    next_retry_time, init_backoff, backoff_factor, creator, editor)
-VALUES ('1', '{}', 0, 0, 1, '2021-01-01 00:00:00', 10, 2, 'lokic', 'lokic');
-
-INSERT INTO dr_transactional_event (event_key, event_content, status, current_retry_times, max_retry_times,
-                                    next_retry_time, init_backoff, backoff_factor, creator, editor)
-VALUES ('1', '{}', 0, 0, 1, '2021-01-01 00:00:00', 10, 2, 'lokic', 'lokic');
+;
