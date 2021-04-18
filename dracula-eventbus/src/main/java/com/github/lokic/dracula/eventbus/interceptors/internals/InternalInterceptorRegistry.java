@@ -21,10 +21,10 @@ public class InternalInterceptorRegistry {
     }
 
     private static void register(Interceptor<? extends Event> interceptor){
-        if(interceptor.getInterceptorType() == InterceptorType.INTERNAL) {
-            INTERCEPTORS.put(interceptor.getClass(), interceptor);
+        if (interceptor.getInterceptorType() != InterceptorType.INTERNAL) {
+            throw new IllegalArgumentException("only internal interceptor can be registered, interceptor = " + interceptor.getName());
         }
-        // TODO throw exception？
+        INTERCEPTORS.put(interceptor.getClass(), interceptor);
     }
 
     public static List<Interceptor<? extends Event>> getAll() {
