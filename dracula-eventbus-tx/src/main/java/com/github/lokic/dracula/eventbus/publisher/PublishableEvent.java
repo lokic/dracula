@@ -1,7 +1,7 @@
-package com.github.lokic.dracula.eventbus.transaction;
+package com.github.lokic.dracula.eventbus.publisher;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.publisher.Publisher;
+import com.github.lokic.dracula.eventbus.transaction.TransactionalEvent;
 
 /**
  * 可发布的事件

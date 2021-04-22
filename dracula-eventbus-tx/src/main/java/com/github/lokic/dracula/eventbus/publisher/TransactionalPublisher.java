@@ -1,7 +1,7 @@
-package com.github.lokic.dracula.eventbus.transaction;
+package com.github.lokic.dracula.eventbus.publisher;
 
 import com.github.lokic.dracula.event.IntegrationEvent;
-import com.github.lokic.dracula.eventbus.publisher.Publisher;
+import com.github.lokic.dracula.eventbus.transaction.TransactionalEventManager;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 public class TransactionalPublisher<E extends IntegrationEvent> implements Publisher<E> {

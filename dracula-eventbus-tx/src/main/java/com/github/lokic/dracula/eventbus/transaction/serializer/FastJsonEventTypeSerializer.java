@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus.transaction.mysql;
+package com.github.lokic.dracula.eventbus.transaction.serializer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;

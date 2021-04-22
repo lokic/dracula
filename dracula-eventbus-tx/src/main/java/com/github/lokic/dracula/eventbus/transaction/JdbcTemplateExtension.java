@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus.transaction.mysql;
+package com.github.lokic.dracula.eventbus.transaction;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.*;

@@ -2,8 +2,10 @@ package com.github.lokic.dracula.eventbus.transaction.mysql;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.transaction.EventTypeSerializer;
+import com.github.lokic.dracula.eventbus.transaction.JdbcTemplateExtension;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEvent;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEventRepository;
+import com.github.lokic.dracula.eventbus.transaction.serializer.FastJsonEventTypeSerializer;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 

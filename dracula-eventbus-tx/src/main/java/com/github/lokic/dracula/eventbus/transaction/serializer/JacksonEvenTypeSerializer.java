@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus.transaction.mysql;
+package com.github.lokic.dracula.eventbus.transaction.serializer;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;

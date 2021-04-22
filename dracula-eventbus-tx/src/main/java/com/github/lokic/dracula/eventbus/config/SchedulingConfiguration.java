@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus.transaction.config;
+package com.github.lokic.dracula.eventbus.config;
 
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEventManager;
 import lombok.extern.slf4j.Slf4j;

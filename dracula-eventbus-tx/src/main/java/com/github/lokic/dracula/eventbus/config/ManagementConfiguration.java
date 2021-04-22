@@ -1,8 +1,8 @@
-package com.github.lokic.dracula.eventbus.transaction.config;
+package com.github.lokic.dracula.eventbus.config;
 
+import com.github.lokic.dracula.eventbus.transaction.JdbcTemplateExtension;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEventManager;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEventRepository;
-import com.github.lokic.dracula.eventbus.transaction.mysql.JdbcTemplateExtension;
 import com.github.lokic.dracula.eventbus.transaction.mysql.TransactionalEventMysqlRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

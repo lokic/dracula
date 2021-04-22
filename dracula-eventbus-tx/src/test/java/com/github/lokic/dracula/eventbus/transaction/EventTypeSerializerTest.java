@@ -1,8 +1,8 @@
 package com.github.lokic.dracula.eventbus.transaction;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.transaction.mysql.FastJsonEventTypeSerializer;
-import com.github.lokic.dracula.eventbus.transaction.mysql.JacksonEvenTypeSerializer;
+import com.github.lokic.dracula.eventbus.transaction.serializer.FastJsonEventTypeSerializer;
+import com.github.lokic.dracula.eventbus.transaction.serializer.JacksonEvenTypeSerializer;
 import lombok.Data;
 import org.junit.Assert;
 import org.junit.Test;

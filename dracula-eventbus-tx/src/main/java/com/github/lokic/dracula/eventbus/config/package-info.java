@@ -13,4 +13,4 @@
  * 应用名
  * dracula.event-bus.application.name
  */
-package com.github.lokic.dracula.eventbus.transaction.config;
+package com.github.lokic.dracula.eventbus.config;

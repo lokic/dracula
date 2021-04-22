@@ -1,6 +1,7 @@
 package com.github.lokic.dracula.eventbus.transaction.mysql;
 
 import com.github.lokic.dracula.event.Event;
+import com.github.lokic.dracula.eventbus.transaction.JdbcTemplateExtension;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEvent;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
