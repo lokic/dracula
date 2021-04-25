@@ -11,7 +11,7 @@ public class JacksonEventTypeSerializer implements EventTypeSerializer {
     private ObjectMapper objectMapper;
 
     public JacksonEventTypeSerializer() {
-        objectMapper = defaultObjectMapper();
+        this.objectMapper = defaultObjectMapper();
     }
 
     private ObjectMapper defaultObjectMapper() {
