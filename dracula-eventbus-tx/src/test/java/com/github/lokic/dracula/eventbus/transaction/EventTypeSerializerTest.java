@@ -2,7 +2,7 @@ package com.github.lokic.dracula.eventbus.transaction;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.transaction.serializer.FastJsonEventTypeSerializer;
-import com.github.lokic.dracula.eventbus.transaction.serializer.JacksonEvenTypeSerializer;
+import com.github.lokic.dracula.eventbus.transaction.serializer.JacksonEventTypeSerializer;
 import lombok.Data;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class EventTypeSerializerTest {
 
     @Test
     public void jackson() {
-        EventTypeSerializer eventTypeSerializer = new JacksonEvenTypeSerializer();
+        EventTypeSerializer eventTypeSerializer = new JacksonEventTypeSerializer();
         TestEvent testEvent = new TestEvent();
         testEvent.setContent("xxx");
         testEvent.setId(1L);
