@@ -40,7 +40,7 @@ public class TransactionalEventQueue<E extends Event> extends SimpleDelegatingQu
             getTargetPublisher().publish(event);
         } else {
             WAITING_PUBLISH_EVENTS.get().add(manager.convert(event));
-            if(TX_REGISTERED.get().compareAndSet(false, true)) {
+            if (TX_REGISTERED.get().compareAndSet(false, true)) {
                 TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                     @Override
                     public void beforeCommit(boolean readOnly) {

@@ -78,7 +78,7 @@ public class BrokerTest {
 
     }
 
-    public static class TestPublisher implements Publisher<TestEvent1>{
+    public static class TestPublisher implements Publisher<TestEvent1> {
         @Override
         public void publish(TestEvent1 event) {
 
@@ -95,7 +95,6 @@ public class BrokerTest {
             super(TestEvent1.class);
         }
     }
-
 
 
     public static class TestEvent1 extends Event {

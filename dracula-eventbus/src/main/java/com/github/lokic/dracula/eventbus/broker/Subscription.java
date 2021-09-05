@@ -30,7 +30,7 @@ public interface Subscription<E extends Event> {
 
     static <E extends Event> Subscription<E> simple(EventHandler<E> handler) {
         Class<E> eventClazz = GenericTypes.getGeneric(handler, EventHandler.class);
-        return new DefaultSubscription<>(eventClazz, handler, new ArrayList<>(), EventHandlerAttribute.sync() );
+        return new DefaultSubscription<>(eventClazz, handler, new ArrayList<>(), EventHandlerAttribute.sync());
     }
 
 }

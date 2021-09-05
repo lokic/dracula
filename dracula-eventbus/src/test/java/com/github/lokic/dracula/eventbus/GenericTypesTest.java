@@ -21,17 +21,18 @@ public class GenericTypesTest {
             public Class<TestEvent> getGenericType() {
                 return TestEvent.class;
             }
-        }, Publisher.class) );
+        }, Publisher.class));
     }
 
     @Test
     public void findEventClassSmart2() {
-        Assert.assertEquals(TestEvent.class, GenericTypes.getGeneric((EventHandler<TestEvent>) event -> { }, EventHandler.class ));
+        Assert.assertEquals(TestEvent.class, GenericTypes.getGeneric((EventHandler<TestEvent>) event -> {
+        }, EventHandler.class));
     }
 
     @Test
     public void findEventClassSmart3() {
-        Assert.assertEquals(TestEvent.class, GenericTypes.getGeneric(new MyPublish(), Publisher.class ));
+        Assert.assertEquals(TestEvent.class, GenericTypes.getGeneric(new MyPublish(), Publisher.class));
     }
 
 

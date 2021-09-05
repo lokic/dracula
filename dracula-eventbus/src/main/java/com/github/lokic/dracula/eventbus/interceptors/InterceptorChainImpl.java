@@ -15,6 +15,7 @@ public class InterceptorChainImpl<E extends Event> implements InterceptorChain<E
 
     /**
      * 会引入所有没有被 {@link #filterAttrsWithRules} 过滤掉的拦截器
+     *
      * @param <E>
      */
     private final List<Interceptor<E>> interceptors;

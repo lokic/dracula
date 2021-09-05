@@ -2,13 +2,13 @@ package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.event.IntegrationEvent;
+import com.github.lokic.dracula.eventbus.broker.Publisher;
 import com.github.lokic.dracula.eventbus.executors.AsyncEventExecutor;
 import com.github.lokic.dracula.eventbus.executors.SyncEventExecutor;
 import com.github.lokic.dracula.eventbus.executors.threadpool.GracefulSpringThreadPool;
 import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import com.github.lokic.dracula.eventbus.handlers.HandlerContext;
 import com.github.lokic.dracula.eventbus.interceptors.extensions.ExtensionInterceptor;
-import com.github.lokic.dracula.eventbus.broker.Publisher;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
@@ -138,12 +138,12 @@ public class EnableEventBusTest {
     public static class TestConfig {
 
         @Bean
-        public Executor threadPoolTaskSchedulerEventExecutor(){
+        public Executor threadPoolTaskSchedulerEventExecutor() {
             return new GracefulSpringThreadPool("test", 10);
         }
 
         @Bean
-        public SpyInterceptor testInterceptor(){
+        public SpyInterceptor testInterceptor() {
             return new SpyInterceptor();
         }
 

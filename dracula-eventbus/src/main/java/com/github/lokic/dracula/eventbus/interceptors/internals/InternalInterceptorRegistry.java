@@ -20,7 +20,7 @@ public class InternalInterceptorRegistry {
         register(new AccessLogInterceptor<>());
     }
 
-    private static void register(Interceptor<? extends Event> interceptor){
+    private static void register(Interceptor<? extends Event> interceptor) {
         if (interceptor.getInterceptorType() != InterceptorType.INTERNAL) {
             throw new IllegalArgumentException("only internal interceptor can be registered, interceptor = " + interceptor.getName());
         }

@@ -8,7 +8,7 @@ import lombok.ToString;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class IntegrationSubscriberTest  {
+public class IntegrationSubscriberTest {
 
     @Test
     public void test_receive() {
@@ -49,6 +49,7 @@ public class IntegrationSubscriberTest  {
         public KafkaIntegrationSubscriber() {
             super(TestEvent.class);
         }
+
         @Override
         public TestEvent deserialize(String s) {
             return new TestEvent(s);

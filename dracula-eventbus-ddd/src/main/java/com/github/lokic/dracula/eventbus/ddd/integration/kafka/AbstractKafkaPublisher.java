@@ -25,7 +25,7 @@ public abstract class AbstractKafkaPublisher<E extends IntegrationEvent> extends
         return serializer.serialize(e);
     }
 
-    public String topic(){
+    public String topic() {
         return topic;
     }
 

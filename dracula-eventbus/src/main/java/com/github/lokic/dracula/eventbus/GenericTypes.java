@@ -15,7 +15,7 @@ public class GenericTypes {
         if (isLambda(object)) {
             return Types.cast(getGenericForLambda(object));
         } else {
-            return  Types.cast(getGenericForObject(object, clazz));
+            return Types.cast(getGenericForObject(object, clazz));
         }
     }
 

@@ -63,7 +63,7 @@ public class TransactionalEventManager {
     public void init() {
         retryCommit.scheduleAtFixedRate(() -> {
             LockInfo lockInfo = new LockInfo("retryCommit:" + applicationName, UUID.randomUUID().toString(), 1000L);
-            try(DistributedLocker locker = distributedLockerFactory.create(lockInfo)) {
+            try (DistributedLocker locker = distributedLockerFactory.create(lockInfo)) {
                 if (locker.tryLock()) {
                     long start = System.currentTimeMillis();
                     log.info("开始执行事务消息推送补偿定时任务...");
@@ -76,12 +76,12 @@ public class TransactionalEventManager {
         }, 0, fixedDelayInMilliseconds, TimeUnit.MILLISECONDS);
     }
 
-    public <E extends Event> void send(E event){
+    public <E extends Event> void send(E event) {
         targetPublisherManager.findPublisherForEvent(event)
                 .ifPresent(publisher -> publisher.publish(event));
     }
 
-    public void save(List<TransactionalEvent<? extends Event>> transactionalEvents){
+    public void save(List<TransactionalEvent<? extends Event>> transactionalEvents) {
         // 在保存的时候，统一设置下次重试时间，防止在保存之前，时间已经到需要重试的时间了
         LocalDateTime nextRetryTime = calculateNextRetryTime(LocalDateTime.now(), DEFAULT_INIT_BACKOFF, DEFAULT_BACKOFF_FACTOR, 0);
         transactionalEvents.forEach(txEvent -> txEvent.setNextRetryTime(nextRetryTime));
@@ -90,9 +90,10 @@ public class TransactionalEventManager {
 
     /**
      * 由 应用名@ip 组成，如果同一机器有多个相同应用会有问题，后面考虑引入端口号
+     *
      * @return
      */
-    private String getBusinessKey(){
+    private String getBusinessKey() {
         if (businessKey != null) {
             return businessKey;
         }
@@ -131,7 +132,7 @@ public class TransactionalEventManager {
         return base.plusSeconds((long) delta);
     }
 
-    public void handleSuccess(TransactionalEvent<? extends Event> txEvent){
+    public void handleSuccess(TransactionalEvent<? extends Event> txEvent) {
         txEvent.setCurrentRetryTimes(calculateRetryTimes(txEvent));
         txEvent.setStatus(TransactionalEvent.Status.SUCCESS);
         txEvent.setNextRetryTime(END);
@@ -146,7 +147,7 @@ public class TransactionalEventManager {
         repository.updateSuccessByEventIds(getBusinessKey(), END, ids);
     }
 
-    public void handleFail(TransactionalEvent<? extends Event> txEvent, Exception ex){
+    public void handleFail(TransactionalEvent<? extends Event> txEvent, Exception ex) {
         Integer currentRetryTimes = calculateRetryTimes(txEvent);
         TransactionalEvent.Status status = calculateStatus(txEvent);
         // 计算下一次的执行时间
@@ -194,7 +195,7 @@ public class TransactionalEventManager {
                 }
             }
             // 没有ipv4地址
-            if(sb.length() == 0) {
+            if (sb.length() == 0) {
                 sb.append(InetAddress.getLocalHost().getHostAddress());
             }
         } catch (SocketException e) {

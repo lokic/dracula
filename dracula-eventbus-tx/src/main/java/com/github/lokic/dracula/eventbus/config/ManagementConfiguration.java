@@ -18,7 +18,7 @@ public class ManagementConfiguration {
     @Bean
     @ConditionalOnBean(JdbcTemplate.class)
     @ConditionalOnProperty(name = "dracula.event-bus.transaction.repository-mode", havingValue = "mysql")
-    public TransactionalEventRepository transactionalEventRepository(DataSource dataSource){
+    public TransactionalEventRepository transactionalEventRepository(DataSource dataSource) {
         return new TransactionalEventMysqlRepository(new JdbcTemplateExtension(dataSource));
     }
 

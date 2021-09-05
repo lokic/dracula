@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
  * 简单异步执行器。在Spring容器中存在优雅关闭的问题，所以该Executor适合一些消息丢失也不要紧的场景
  */
 @Slf4j
-public class SimpleThreadPool extends  ThreadPoolExecutor{
+public class SimpleThreadPool extends ThreadPoolExecutor {
 
     public SimpleThreadPool(String name, int nThreads, int buffer) {
         super(nThreads, nThreads,

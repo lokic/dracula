@@ -2,6 +2,8 @@ package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.broker.Broker;
+import com.github.lokic.dracula.eventbus.broker.Publisher;
+import com.github.lokic.dracula.eventbus.broker.Subscriber;
 import com.github.lokic.dracula.eventbus.executors.EventExecutor;
 import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
@@ -9,8 +11,6 @@ import com.github.lokic.dracula.eventbus.interceptors.Interceptor;
 import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
 import com.github.lokic.dracula.eventbus.interceptors.extensions.ExtensionInterceptor;
 import com.github.lokic.dracula.eventbus.interceptors.internals.InternalInterceptorRegistry;
-import com.github.lokic.dracula.eventbus.broker.Publisher;
-import com.github.lokic.dracula.eventbus.broker.Subscriber;
 import com.github.lokic.javaplus.Types;
 import com.google.common.collect.Lists;
 import org.springframework.beans.BeansException;
@@ -87,7 +87,7 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
     }
 
     private void registerEventHandler(EventBus eventBus, AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        Scanner scanner = new Scanner(registry){
+        Scanner scanner = new Scanner(registry) {
             @Override
             List<Class<? extends Annotation>> getCustomIncludeFilters() {
                 return Lists.newArrayList(EventHandlerComponent.class);
@@ -237,13 +237,13 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
         }
 
         @Override
-        protected void registerDefaultFilters(){
+        protected void registerDefaultFilters() {
             addIncludeFilters(getCustomIncludeFilters());
         }
 
         abstract List<Class<? extends Annotation>> getCustomIncludeFilters();
 
-        final void addIncludeFilters(List<Class<? extends Annotation>> annotationTypes){
+        final void addIncludeFilters(List<Class<? extends Annotation>> annotationTypes) {
             for (Class<? extends Annotation> annotationType : annotationTypes) {
                 addIncludeFilter(new AnnotationTypeFilter(annotationType));
             }
@@ -255,7 +255,6 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
         }
 
     }
-
 
 
 }

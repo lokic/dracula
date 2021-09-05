@@ -17,7 +17,7 @@ public class AsyncEventExecutor implements EventExecutor {
 
     private final Executor executor;
 
-    public AsyncEventExecutor(Executor asyncExecutor){
+    public AsyncEventExecutor(Executor asyncExecutor) {
         this.executor = asyncExecutor;
     }
 

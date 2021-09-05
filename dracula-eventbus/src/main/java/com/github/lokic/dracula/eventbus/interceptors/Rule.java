@@ -8,11 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 拦截器的规则。
- *
+ * <p>
  * rule 前面是 {@code REMOVE_VALUE_PREFIX} 表示是移除这个拦截器。一般用于对一组固定顺序的拦截器中，移除个别拦截器，如，移除内部拦截器
- *
+ * <p>
  * rule的名字 {@code name}，不能 {@code REMOVE_VALUE_PREFIX} 打头
- *
  */
 
 @EqualsAndHashCode
@@ -38,7 +37,7 @@ public class Rule {
         return RULE_CACHE.computeIfAbsent(rule, Rule::create);
     }
 
-    public static Rule defaultRule(){
+    public static Rule defaultRule() {
         return DEFAULT_RULE;
     }
 
@@ -51,19 +50,19 @@ public class Rule {
     }
 
     private static Rule create(String rule) {
-        if(rule.startsWith(REMOVE_VALUE_PREFIX)){
+        if (rule.startsWith(REMOVE_VALUE_PREFIX)) {
             return new Rule(true, rule.substring(REMOVE_VALUE_PREFIX.length()));
         } else {
             return new Rule(false, rule);
         }
     }
 
-    private String buildRuleName(boolean remove, String name){
+    private String buildRuleName(boolean remove, String name) {
         return remove ? REMOVE_VALUE_PREFIX + name : name;
     }
 
     private Rule(boolean remove, String name) {
-        if(name.startsWith(REMOVE_VALUE_PREFIX)){
+        if (name.startsWith(REMOVE_VALUE_PREFIX)) {
             throw new IllegalArgumentException("name can not start with " + REMOVE_VALUE_PREFIX + ": " + name);
         }
         this.remove = remove;

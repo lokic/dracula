@@ -14,7 +14,7 @@ public interface EventExecutor {
 
     SyncEventExecutor SYNC = new SyncEventExecutor();
 
-    default <E extends Event>  void submit(InterceptorChain<E> chain, EventHandler<E> handler, E event){
+    default <E extends Event> void submit(InterceptorChain<E> chain, EventHandler<E> handler, E event) {
         submit(new Task<>(chain, handler, event));
     }
 

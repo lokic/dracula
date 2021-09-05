@@ -20,6 +20,7 @@ interface InternalInterceptor<E extends Event> extends Interceptor<E> {
 
     /**
      * 暂时设计成所有{@code InternalInterceptor}都是相同的order，排序在 {@link InternalInterceptorRegistry} 中完成
+     *
      * @return
      */
     @Override

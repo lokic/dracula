@@ -2,12 +2,12 @@ package com.github.lokic.dracula.eventbus.ddd;
 
 import com.github.lokic.dracula.event.IntegrationEvent;
 import com.github.lokic.dracula.eventbus.broker.Broker;
+import com.github.lokic.dracula.eventbus.broker.Publisher;
+import com.github.lokic.dracula.eventbus.broker.publisher.ForwardingPublisher;
+import com.github.lokic.dracula.eventbus.broker.subscriber.NonSubscriber;
 import com.github.lokic.dracula.eventbus.ddd.integration.Serializer;
 import com.github.lokic.dracula.eventbus.ddd.integration.kafka.AbstractKafkaPublisher;
 import com.github.lokic.dracula.eventbus.ddd.integration.kafka.Partitioner;
-import com.github.lokic.dracula.eventbus.broker.publisher.ForwardingPublisher;
-import com.github.lokic.dracula.eventbus.broker.Publisher;
-import com.github.lokic.dracula.eventbus.broker.subscriber.NonSubscriber;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -17,7 +17,7 @@ import org.mockito.Spy;
 public class KafkaIntegrationPublisherTest {
 
     @Spy
-    ProxyKafkaPublisher<OrderCreated> publisher = new ProxyKafkaPublisher<OrderCreated>("xxxxx", Partitioner.dummy(), c -> "aaaa"){
+    ProxyKafkaPublisher<OrderCreated> publisher = new ProxyKafkaPublisher<OrderCreated>("xxxxx", Partitioner.dummy(), c -> "aaaa") {
         @Override
         public Class<OrderCreated> getGenericType() {
             return OrderCreated.class;
@@ -87,7 +87,7 @@ public class KafkaIntegrationPublisherTest {
 
         @Override
         public void send(E data) {
-            log.info("send kafka topic=" + topic() + ", key=" + partitioner().key(data) +", data=" + serialize(data));
+            log.info("send kafka topic=" + topic() + ", key=" + partitioner().key(data) + ", data=" + serialize(data));
         }
     }
 }

@@ -3,10 +3,10 @@ package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.broker.Broker;
+import com.github.lokic.dracula.eventbus.broker.Subscription;
 import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
 import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
-import com.github.lokic.dracula.eventbus.broker.Subscription;
 
 import java.util.List;
 

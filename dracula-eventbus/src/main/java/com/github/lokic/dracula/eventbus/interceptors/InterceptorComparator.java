@@ -20,7 +20,7 @@ public class InterceptorComparator implements Comparator<InterceptorAttribute<?>
 
     private final RuleOrdering ruleOrdering;
 
-    static InterceptorComparator of(List<Rule> rules){
+    static InterceptorComparator of(List<Rule> rules) {
         return new InterceptorComparator(rules);
     }
 
@@ -31,6 +31,7 @@ public class InterceptorComparator implements Comparator<InterceptorAttribute<?>
     /**
      * 在 {@link RuleOrdering ruleOrdering} 里配置的情况下，顺序以 {@code ruleOrdering} 为准；
      * 没有{@code ruleOrdering} 里配置的情况，默认 内置拦截器 优先于 扩展拦截器，并以 {@link InterceptorAttribute#getOrder()} 排序，越小的优先级越高
+     *
      * @param o1
      * @param o2
      * @return
@@ -49,8 +50,8 @@ public class InterceptorComparator implements Comparator<InterceptorAttribute<?>
             return 1;
         }
 
-        if(ruleOrdering.contains(o1) && ruleOrdering.contains(o2)){
-            if(! Objects.equals(o1.getRule(), o2.getRule())){
+        if (ruleOrdering.contains(o1) && ruleOrdering.contains(o2)) {
+            if (!Objects.equals(o1.getRule(), o2.getRule())) {
                 return ruleOrdering.compare(o1, o2);
             }
         }
@@ -71,11 +72,11 @@ public class InterceptorComparator implements Comparator<InterceptorAttribute<?>
             this.ordering = Ordering.explicit(rules);
         }
 
-        boolean contains(InterceptorAttribute<?> o){
+        boolean contains(InterceptorAttribute<?> o) {
             return rules.contains(o.getRule());
         }
 
-        int compare(InterceptorAttribute<?> o1, InterceptorAttribute<?> o2){
+        int compare(InterceptorAttribute<?> o1, InterceptorAttribute<?> o2) {
             return ordering.compare(o1.getRule(), o2.getRule());
         }
     }

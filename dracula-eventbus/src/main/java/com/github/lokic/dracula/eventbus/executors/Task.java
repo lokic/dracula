@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Value
-public class Task<E extends Event> implements Runnable{
+public class Task<E extends Event> implements Runnable {
 
     @NonNull
     private final InterceptorChain<E> chain;

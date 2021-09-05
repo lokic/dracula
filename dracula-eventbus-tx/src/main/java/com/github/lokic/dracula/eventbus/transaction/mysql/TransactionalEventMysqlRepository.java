@@ -27,7 +27,7 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
 
 
     public TransactionalEventMysqlRepository(JdbcTemplateExtension jdbcTemplate) {
-        this(jdbcTemplate,  new FastJsonEventTypeSerializer());
+        this(jdbcTemplate, new FastJsonEventTypeSerializer());
     }
 
     public TransactionalEventMysqlRepository(JdbcTemplateExtension jdbcTemplate, EventTypeSerializer eventTypeSerializer) {

@@ -4,7 +4,10 @@ import com.github.lokic.dracula.eventbus.executors.EventExecutor;
 import com.github.lokic.dracula.eventbus.interceptors.Rule;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -12,7 +15,6 @@ import static java.util.stream.Collectors.*;
 
 /**
  * 事件处理器相关属性的封装。
- *
  */
 @Getter
 public class EventHandlerAttribute {
@@ -38,9 +40,10 @@ public class EventHandlerAttribute {
 
     /**
      * 校验 {@code rules} 重复配置，不能有重复的名字
+     *
      * @param rules
      */
-    void validateRulesDuplicateProtection(List<String> rules){
+    void validateRulesDuplicateProtection(List<String> rules) {
         Map<String, Long> map = rules.stream()
                 .collect(Collectors.groupingBy(Function.identity(), counting()))
                 .entrySet()

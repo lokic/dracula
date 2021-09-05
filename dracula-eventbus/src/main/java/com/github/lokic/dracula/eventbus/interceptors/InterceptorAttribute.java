@@ -44,7 +44,7 @@ public class InterceptorAttribute<E extends Event> {
         return type;
     }
 
-    private boolean isInternal(){
+    private boolean isInternal() {
         return InterceptorType.INTERNAL == type;
     }
 

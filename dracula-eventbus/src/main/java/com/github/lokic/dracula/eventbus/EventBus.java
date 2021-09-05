@@ -1,7 +1,6 @@
 package com.github.lokic.dracula.eventbus;
 
 
-
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
