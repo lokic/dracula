@@ -2,13 +2,13 @@ package com.github.lokic.dracula.eventbus.ddd;
 
 import com.github.lokic.dracula.event.IntegrationEvent;
 import com.github.lokic.dracula.eventbus.broker.Broker;
-import com.github.lokic.dracula.eventbus.broker.DefaultBrokerManager;
 import com.github.lokic.dracula.eventbus.ddd.integration.Serializer;
 import com.github.lokic.dracula.eventbus.ddd.integration.kafka.AbstractKafkaPublisher;
 import com.github.lokic.dracula.eventbus.ddd.integration.kafka.Partitioner;
-import com.github.lokic.dracula.eventbus.publisher.ForwardingPublisher;
-import com.github.lokic.dracula.eventbus.publisher.Publisher;
-import com.github.lokic.dracula.eventbus.subscriber.NonSubscriber;
+import com.github.lokic.dracula.eventbus.broker.publisher.ForwardingPublisher;
+import com.github.lokic.dracula.eventbus.broker.Publisher;
+import com.github.lokic.dracula.eventbus.broker.subscriber.NonSubscriber;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -17,31 +17,36 @@ import org.mockito.Spy;
 public class KafkaIntegrationPublisherTest {
 
     @Spy
-    ProxyKafkaPublisher<OrderCreated> publisher = new ProxyKafkaPublisher<>("xxxxx", Partitioner.dummy(), c -> "aaaa");
+    ProxyKafkaPublisher<OrderCreated> publisher = new ProxyKafkaPublisher<OrderCreated>("xxxxx", Partitioner.dummy(), c -> "aaaa"){
+        @Override
+        public Class<OrderCreated> getGenericType() {
+            return OrderCreated.class;
+        }
+    };
 
-    DefaultBrokerManager brokerManager = new DefaultBrokerManager();
+    Broker broker = new Broker();
 
     public KafkaIntegrationPublisherTest() {
         MockitoAnnotations.initMocks(this);
-        brokerManager.addBroker(OrderCreated.class, new TestBroker(publisher));
+        broker.bind(publisher);
     }
 
     @Test
     public void test_add() {
-        brokerManager.getBroker(OrderCreated.class).publish(new OrderCreated());
+        broker.publish(new OrderCreated());
         Mockito.verify(publisher, Mockito.times(1))
-                .send(Mockito.anyString());
+                .send(Mockito.any(OrderCreated.class));
     }
 
 
     @Test
     public void test_notAdd() {
-        brokerManager.getBroker(OrderCancelled.class).publish(new OrderCancelled());
+        broker.publish(new OrderCancelled());
         Mockito.verify(publisher, Mockito.never())
-                .send(Mockito.anyString());
+                .send(Mockito.any());
     }
 
-    public static class TestBroker implements Broker<OrderCreated>, NonSubscriber<OrderCreated>, ForwardingPublisher<OrderCreated> {
+    public static class TestBroker implements NonSubscriber<OrderCreated>, ForwardingPublisher<OrderCreated> {
 
         private final Publisher<OrderCreated> publisher;
 
@@ -50,8 +55,13 @@ public class KafkaIntegrationPublisherTest {
         }
 
         @Override
-        public Publisher<OrderCreated> delegatePublisher() {
+        public Publisher<OrderCreated> getTargetPublisher() {
             return publisher;
+        }
+
+        @Override
+        public Class<OrderCreated> getGenericType() {
+            return OrderCreated.class;
         }
     }
 
@@ -68,15 +78,16 @@ public class KafkaIntegrationPublisherTest {
 
     }
 
-    public static class ProxyKafkaPublisher<E extends IntegrationEvent> extends AbstractKafkaPublisher<E> {
+    @Slf4j
+    public static abstract class ProxyKafkaPublisher<E extends IntegrationEvent> extends AbstractKafkaPublisher<E> {
 
         public ProxyKafkaPublisher(String topic, Partitioner<E> keyMapping, Serializer<E> serializer) {
             super(topic, keyMapping, serializer);
         }
 
         @Override
-        public void send(String data) {
-
+        public void send(E data) {
+            log.info("send kafka topic=" + topic() + ", key=" + partitioner().key(data) +", data=" + serialize(data));
         }
     }
 }

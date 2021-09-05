@@ -4,10 +4,7 @@ import com.github.lokic.dracula.eventbus.executors.EventExecutor;
 import com.github.lokic.dracula.eventbus.interceptors.Rule;
 import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,13 +21,17 @@ public class EventHandlerAttribute {
 
     private final List<Rule> rules;
 
-    public EventHandlerAttribute(EventExecutor executor, String[] rules) {
+    public static EventHandlerAttribute sync() {
+        return new EventHandlerAttribute(EventExecutor.SYNC, new ArrayList<>());
+    }
+
+    public EventHandlerAttribute(EventExecutor executor, List<String> rules) {
 
         Objects.requireNonNull(rules);
         validateRulesDuplicateProtection(rules);
 
         this.executor = executor;
-        this.rules = Arrays.stream(rules)
+        this.rules = rules.stream()
                 .map(Rule::of)
                 .collect(toList());
     }
@@ -39,8 +40,8 @@ public class EventHandlerAttribute {
      * 校验 {@code rules} 重复配置，不能有重复的名字
      * @param rules
      */
-    void validateRulesDuplicateProtection(String[] rules){
-        Map<String, Long> map = Arrays.stream(rules)
+    void validateRulesDuplicateProtection(List<String> rules){
+        Map<String, Long> map = rules.stream()
                 .collect(Collectors.groupingBy(Function.identity(), counting()))
                 .entrySet()
                 .stream()

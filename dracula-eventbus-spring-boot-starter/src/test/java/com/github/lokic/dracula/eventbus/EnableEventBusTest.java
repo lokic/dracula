@@ -2,14 +2,13 @@ package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.event.IntegrationEvent;
-import com.github.lokic.dracula.eventbus.broker.BrokerManager;
 import com.github.lokic.dracula.eventbus.executors.AsyncEventExecutor;
 import com.github.lokic.dracula.eventbus.executors.SyncEventExecutor;
 import com.github.lokic.dracula.eventbus.executors.threadpool.GracefulSpringThreadPool;
 import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import com.github.lokic.dracula.eventbus.handlers.HandlerContext;
 import com.github.lokic.dracula.eventbus.interceptors.extensions.ExtensionInterceptor;
-import com.github.lokic.dracula.eventbus.publisher.Publisher;
+import com.github.lokic.dracula.eventbus.broker.Publisher;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
@@ -46,7 +45,6 @@ public class EnableEventBusTest {
             softly.assertThat(context.getBeansOfType(EventHandler.class)).hasSize(2);
             softly.assertThat(context.getBeansOfType(SyncEventExecutor.class)).hasSize(1);
             softly.assertThat(context.getBeansOfType(AsyncEventExecutor.class)).hasSize(1);
-            softly.assertThat(context.getBeansOfType(BrokerManager.class)).hasSize(1);
             softly.assertThat(context.getBeansOfType(TestIntegrationEventPublisher.class)).hasSize(1);
 
 
@@ -67,6 +65,11 @@ public class EnableEventBusTest {
         @Override
         public void publish(TestIntegrationEvent event) {
             testService.method();
+        }
+
+        @Override
+        public Class<TestIntegrationEvent> getGenericType() {
+            return TestIntegrationEvent.class;
         }
     }
 
@@ -130,7 +133,7 @@ public class EnableEventBusTest {
         }
     }
 
-    @EnableEventBus
+    @EnableEventBus(eventBus = DefaultEventBus.class)
     @Configuration
     public static class TestConfig {
 

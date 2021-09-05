@@ -27,5 +27,12 @@ public class ManagementConfiguration {
         return new TransactionalEventManager(repository);
     }
 
+    @Bean
+    @ConditionalOnBean(TransactionalEventManager.class)
+    @ConditionalOnProperty(name = "dracula.event-bus.transaction.publish-mode", havingValue = "scheduling")
+    public int initScheduling(TransactionalEventManager transactionalEventManager) {
+        transactionalEventManager.init();
+        return 1;
+    }
 
 }

@@ -1,7 +1,8 @@
 package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.publisher.Publisher;
+import com.github.lokic.dracula.eventbus.broker.Publisher;
+import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,12 +16,17 @@ public class GenericTypesTest {
             public void publish(TestEvent event) {
 
             }
+
+            @Override
+            public Class<TestEvent> getGenericType() {
+                return TestEvent.class;
+            }
         }, Publisher.class) );
     }
 
     @Test
     public void findEventClassSmart2() {
-        Assert.assertEquals(TestEvent.class, GenericTypes.getGeneric((Publisher<TestEvent>) event -> { }, Publisher.class ));
+        Assert.assertEquals(TestEvent.class, GenericTypes.getGeneric((EventHandler<TestEvent>) event -> { }, EventHandler.class ));
     }
 
     @Test
@@ -38,5 +44,11 @@ public class GenericTypesTest {
         public void publish(TestEvent event) {
 
         }
+
+        @Override
+        public Class<TestEvent> getGenericType() {
+            return TestEvent.class;
+        }
+
     }
 }

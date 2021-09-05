@@ -24,4 +24,12 @@ public abstract class AbstractKafkaPublisher<E extends IntegrationEvent> extends
     public String serialize(E e) {
         return serializer.serialize(e);
     }
+
+    public String topic(){
+        return topic;
+    }
+
+    public Partitioner<E> partitioner() {
+        return partitioner;
+    }
 }

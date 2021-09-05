@@ -12,7 +12,7 @@ public class EventTypeInterceptor<E extends Event> implements InternalIntercepto
 
     public static final String NAME = "eventType";
 
-    private Class<E> eventClazz;
+    private final Class<E> eventClazz;
 
     public EventTypeInterceptor(Class<E> eventClazz) {
         this.eventClazz = eventClazz;

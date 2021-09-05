@@ -2,7 +2,6 @@ package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.broker.Broker;
-import com.github.lokic.dracula.eventbus.broker.DefaultBrokerManager;
 import com.github.lokic.dracula.eventbus.executors.EventExecutor;
 import com.github.lokic.dracula.eventbus.handlers.EventHandler;
 import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
@@ -10,9 +9,10 @@ import com.github.lokic.dracula.eventbus.interceptors.Interceptor;
 import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
 import com.github.lokic.dracula.eventbus.interceptors.extensions.ExtensionInterceptor;
 import com.github.lokic.dracula.eventbus.interceptors.internals.InternalInterceptorRegistry;
-import com.github.lokic.dracula.eventbus.publisher.Publisher;
-import com.github.lokic.dracula.eventbus.subscriber.Subscriber;
+import com.github.lokic.dracula.eventbus.broker.Publisher;
+import com.github.lokic.dracula.eventbus.broker.Subscriber;
 import com.github.lokic.javaplus.Types;
+import com.google.common.collect.Lists;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -30,7 +30,6 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
@@ -74,9 +73,9 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
                 addCommonPostProcessor(registry);
 
                 Class<? extends EventBus> eventBusClazz = Types.cast(clazz);
-                EventBus eventBus = getOrRegisterEventBusToSpring(registry, eventBusClazz);
-                registerEventHandler(eventBus, importingClassMetadata, registry);
                 registerBroker(importingClassMetadata, registry);
+                EventBus eventBus = getOrRegisterEventBus(registry, eventBusClazz);
+                registerEventHandler(eventBus, importingClassMetadata, registry);
             }
 
         }
@@ -88,8 +87,12 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
     }
 
     private void registerEventHandler(EventBus eventBus, AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        EventHandlerScanner scanner = new EventHandlerScanner(registry);
-        scanner.setResourceLoader(resourceLoader);
+        Scanner scanner = new Scanner(registry){
+            @Override
+            List<Class<? extends Annotation>> getCustomIncludeFilters() {
+                return Lists.newArrayList(EventHandlerComponent.class);
+            }
+        };
 
         Set<String> basePackages = getBasePackages(importingClassMetadata);
         scanner.doScan(basePackages.toArray(new String[0]));
@@ -114,18 +117,22 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
 
     @SuppressWarnings("unchecked")
     private void registerBroker(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        BrokerScanner scanner = new BrokerScanner(registry);
-        scanner.setResourceLoader(resourceLoader);
+        Scanner scanner = new Scanner(registry) {
+            @Override
+            List<Class<? extends Annotation>> getCustomIncludeFilters() {
+                return Lists.newArrayList(PublisherComponent.class, SubscriberComponent.class, BrokerComponent.class);
+            }
+        };
+
         Set<String> basePackages = getBasePackages(importingClassMetadata);
         scanner.doScan(basePackages.toArray(new String[0]));
 
-        DefaultBrokerManager brokerManager = beanFactory.getBean(DefaultBrokerManager.class);
+        Broker broker = registerToSpring(registry, Broker.class);
         Map<String, Publisher<?>> publisherMap = Types.cast(getBeansOfComponent(Publisher.class, PublisherComponent.class));
         Map<String, Subscriber<?>> subscriberMap = Types.cast(getBeansOfComponent(Subscriber.class, SubscriberComponent.class));
-        Map<String, Broker<?>> brokerMap = Types.cast(getBeansOfComponent(Broker.class, BrokerComponent.class));
 
-        brokerManager.addWithPublishersAndSubscribers(new ArrayList<>(publisherMap.values()), new ArrayList<>(subscriberMap.values()));
-        brokerManager.addWithBrokers(new ArrayList<>(brokerMap.values()));
+        publisherMap.forEach((k, p) -> broker.bind(p));
+        subscriberMap.forEach((k, s) -> broker.bind(s));
     }
 
     private <T> Map<String, T> getBeansOfComponent(Class<T> componentType, Class<? extends Annotation> annotationType) {
@@ -165,8 +172,7 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
     /**
      * 注册event bus到spring
      */
-    private EventBus getOrRegisterEventBusToSpring(BeanDefinitionRegistry registry, Class<? extends EventBus> eventBusClazz) {
-        registerToSpring(registry, DefaultBrokerManager.class);
+    private EventBus getOrRegisterEventBus(BeanDefinitionRegistry registry, Class<? extends EventBus> eventBusClazz) {
         return registerToSpring(registry, eventBusClazz);
     }
 
@@ -196,15 +202,12 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
      */
     @SuppressWarnings("unchecked")
     private void registerEventHandlerToEventBus(EventBus eventBus, EventHandler eventHandler, List<InterceptorAttribute<Event>> interceptorAttributes, EventHandlerAttribute attribute) {
-        Class eventClazz = ResolvableType.forClass(eventHandler.getClass())
-                .as(EventHandler.class)
-                .getGeneric(0)
-                .resolve();
+        Class eventClazz = GenericTypes.getGeneric(eventHandler, EventHandler.class);
         eventBus.register(eventClazz, eventHandler, interceptorAttributes, attribute);
     }
 
     private EventHandlerAttribute buildEventHandlerComponentAttribute(BeanDefinitionRegistry registry, EventHandlerComponent annotation) {
-        return new EventHandlerAttribute(getOrCreateExecutor(registry, annotation.executor()), annotation.rules());
+        return new EventHandlerAttribute(getOrCreateExecutor(registry, annotation.executor()), Arrays.stream(annotation.rules()).collect(Collectors.toList()));
     }
 
     private EventExecutor getOrCreateExecutor(BeanDefinitionRegistry registry, Class<? extends EventExecutor> executorClazz) {
@@ -227,41 +230,32 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
         }
     }
 
-    private static class EventHandlerScanner extends ClassPathBeanDefinitionScanner {
+    private static abstract class Scanner extends ClassPathBeanDefinitionScanner {
 
-        EventHandlerScanner(BeanDefinitionRegistry registry) {
+        Scanner(BeanDefinitionRegistry registry) {
             super(registry);
         }
 
         @Override
-        protected void registerDefaultFilters() {
-            addIncludeFilter(new AnnotationTypeFilter(EventHandlerComponent.class));
+        protected void registerDefaultFilters(){
+            addIncludeFilters(getCustomIncludeFilters());
+        }
+
+        abstract List<Class<? extends Annotation>> getCustomIncludeFilters();
+
+        final void addIncludeFilters(List<Class<? extends Annotation>> annotationTypes){
+            for (Class<? extends Annotation> annotationType : annotationTypes) {
+                addIncludeFilter(new AnnotationTypeFilter(annotationType));
+            }
         }
 
         @Override
-        protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
+        public Set<BeanDefinitionHolder> doScan(String... basePackages) {
             return super.doScan(basePackages);
         }
+
     }
 
-
-    private static class BrokerScanner extends ClassPathBeanDefinitionScanner {
-        BrokerScanner(BeanDefinitionRegistry registry) {
-            super(registry);
-        }
-
-        @Override
-        protected void registerDefaultFilters() {
-            addIncludeFilter(new AnnotationTypeFilter(PublisherComponent.class));
-            addIncludeFilter(new AnnotationTypeFilter(SubscriberComponent.class));
-            addIncludeFilter(new AnnotationTypeFilter(BrokerComponent.class));
-        }
-
-        @Override
-        protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
-            return super.doScan(basePackages);
-        }
-    }
 
 
 }
