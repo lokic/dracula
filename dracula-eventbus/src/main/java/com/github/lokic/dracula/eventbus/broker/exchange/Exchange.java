@@ -17,7 +17,7 @@ public class Exchange {
     public <E extends Event> Queue<E> route(Class<?> clazz) {
         Binding binding = cache.computeIfAbsent(clazz, this::route0);
         if (binding != null) {
-            return (Queue<E>)binding.getQueue();
+            return (Queue<E>) binding.getQueue();
         }
         return null;
     }
