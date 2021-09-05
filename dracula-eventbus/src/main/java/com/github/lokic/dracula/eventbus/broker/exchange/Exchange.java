@@ -15,16 +15,11 @@ public class Exchange {
 
     @SuppressWarnings("unchecked")
     public <E extends Event> Queue<E> route(Class<?> clazz) {
-        if (cache.get(clazz) != null) {
-            return (Queue<E>) cache.get(clazz).getQueue();
-        } else {
-            Binding binding = route0(clazz);
-            if (binding == null) {
-                return null;
-            }
-            cache.put(clazz, binding);
-            return (Queue<E>) binding.getQueue();
+        Binding binding = cache.computeIfAbsent(clazz, this::route0);
+        if (binding != null) {
+            return (Queue<E>)binding.getQueue();
         }
+        return null;
     }
 
     private Binding route0(Class<?> clazz) {
