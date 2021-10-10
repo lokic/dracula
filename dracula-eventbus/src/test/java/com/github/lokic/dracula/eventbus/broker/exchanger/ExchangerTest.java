@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus.broker.exchange;
+package com.github.lokic.dracula.eventbus.broker.exchanger;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.broker.Queue;
@@ -6,18 +6,18 @@ import com.github.lokic.dracula.eventbus.broker.queue.SimpleDelegatingQueue;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ExchangeTest {
+public class ExchangerTest {
 
     @Test
     public void test_event_inherit() {
-        Exchange exchange = new Exchange();
+        Exchanger exchanger = new Exchanger();
         Queue<TestEvent> queue = new SimpleDelegatingQueue<>(TestEvent.class);
         Binding binding = new Binding(new TypeRoutingKey(TestEvent.class), queue);
-        exchange.addBinding(binding);
+        exchanger.addBinding(binding);
 
-        Assert.assertSame(queue, exchange.route(TestEvent1.class));
-        Assert.assertSame(queue, exchange.route(TestEvent2.class));
-        Assert.assertNull(exchange.route(NewTestEvent.class));
+        Assert.assertSame(queue, exchanger.route(TestEvent1.class));
+        Assert.assertSame(queue, exchanger.route(TestEvent2.class));
+        Assert.assertNull(exchanger.route(NewTestEvent.class));
     }
 
     public static class TestEvent extends Event {

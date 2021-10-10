@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus.broker.exchange;
+package com.github.lokic.dracula.eventbus.broker.exchanger;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.broker.Queue;

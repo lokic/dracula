@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus.broker.exchange;
+package com.github.lokic.dracula.eventbus.broker.exchanger;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.broker.Queue;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Exchange {
+public class Exchanger {
     private final List<Binding> bindings = new ArrayList<>();
 
     private final Map<Class<?>, Binding> cache = new ConcurrentHashMap<>();

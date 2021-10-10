@@ -1,7 +1,7 @@
 package com.github.lokic.dracula.eventbus.broker;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.broker.exchange.Exchange;
+import com.github.lokic.dracula.eventbus.broker.exchanger.Exchanger;
 import com.github.lokic.dracula.eventbus.broker.publisher.DelegatingPublisher;
 import com.github.lokic.dracula.eventbus.broker.publisher.NonPublisher;
 import com.github.lokic.dracula.eventbus.broker.queue.SimpleDelegatingQueue;
@@ -54,8 +54,8 @@ public class BrokerTest {
         Broker broker = new Broker();
         publishers.forEach(broker::bind);
         subscribers.forEach(broker::bind);
-        Exchange exchange = Whitebox.getInternalState(broker, "exchange");
-        List<?> bindings = Whitebox.getInternalState(exchange, "bindings");
+        Exchanger exchanger = Whitebox.getInternalState(broker, "exchanger");
+        List<?> bindings = Whitebox.getInternalState(exchanger, "bindings");
         Assert.assertEquals(3, bindings.size());
     }
 

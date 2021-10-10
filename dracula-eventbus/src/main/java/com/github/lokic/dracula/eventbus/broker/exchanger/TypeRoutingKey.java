@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus.broker.exchange;
+package com.github.lokic.dracula.eventbus.broker.exchanger;
 
 public class TypeRoutingKey implements RoutingKey {
 
