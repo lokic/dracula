@@ -48,7 +48,7 @@ public class TransactionalEventQueueTest {
 
     public static class TestEvent extends Event {
 
-        private String content;
+        private final String content;
 
         public TestEvent(String content) {
             this.content = content;

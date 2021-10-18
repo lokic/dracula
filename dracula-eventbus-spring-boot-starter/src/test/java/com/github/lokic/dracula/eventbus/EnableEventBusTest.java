@@ -34,7 +34,6 @@ public class EnableEventBusTest {
     @Autowired
     private ApplicationContext context;
 
-    @SuppressWarnings("unchecked")
     @Test
     public void eventHandler_test() {
 
@@ -90,7 +89,7 @@ public class EnableEventBusTest {
     @EventHandlerComponent
     public static class Spy1EventHandler implements EventHandler<TestEvent> {
 
-        private TestService testService;
+        private final TestService testService;
 
         public Spy1EventHandler(TestService testService) {
             this.testService = testService;
@@ -134,7 +133,7 @@ public class EnableEventBusTest {
         }
     }
 
-    @EnableEventBus(eventBus = DefaultEventBus.class)
+    @EnableEventBus
     @Configuration
     public static class TestConfig {
 

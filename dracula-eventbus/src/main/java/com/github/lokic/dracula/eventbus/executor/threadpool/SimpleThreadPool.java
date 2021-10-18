@@ -16,7 +16,7 @@ public class SimpleThreadPool extends ThreadPoolExecutor {
     public SimpleThreadPool(String name, int nThreads, int buffer) {
         super(nThreads, nThreads,
                 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(buffer),
+                new LinkedBlockingQueue<>(buffer),
                 new ThreadFactoryBuilder()
                         .setNameFormat(name + "-%d")
                         .setDaemon(true)

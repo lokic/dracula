@@ -14,19 +14,19 @@ import lombok.ToString;
 @Getter
 public class InterceptorAttribute<E extends Event> {
 
-    private String name;
+    private final String name;
 
     /**
      * 拦截器的rule，对应 {@link EventHandlerAttribute#getRules()} 中 {@link Rule}。
      * 每个内置拦截器有自己的名字，但是对外的rule都是统一是 {@link Rule#defaultRule()}。
      */
-    private Rule rule;
+    private final Rule rule;
 
-    private int order;
+    private final int order;
 
-    private Interceptor<E> interceptor;
+    private final Interceptor<E> interceptor;
 
-    private InterceptorType type;
+    private final InterceptorType type;
 
     public InterceptorAttribute(Interceptor<E> interceptor) {
         this.order = interceptor.getOrder();

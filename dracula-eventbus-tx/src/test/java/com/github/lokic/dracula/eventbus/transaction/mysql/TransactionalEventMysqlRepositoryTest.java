@@ -37,7 +37,7 @@ public class TransactionalEventMysqlRepositoryTest {
                 .build();
         TransactionalEventMysqlRepository repository = new TransactionalEventMysqlRepository(new JdbcTemplateExtension(dataSource));
 
-        TransactionalEvent<TestEvent> txEvent = new TransactionalEvent<TestEvent>();
+        TransactionalEvent<TestEvent> txEvent = new TransactionalEvent<>();
         txEvent.setInitBackoff(10L);
         txEvent.setBackoffFactor(2);
         txEvent.setCurrentRetryTimes(0);
@@ -49,7 +49,7 @@ public class TransactionalEventMysqlRepositoryTest {
         txEvent.setEditor("lokic");
 
 
-        TransactionalEvent<TestEvent> txEvent2 = new TransactionalEvent<TestEvent>();
+        TransactionalEvent<TestEvent> txEvent2 = new TransactionalEvent<>();
         txEvent2.setInitBackoff(10L);
         txEvent2.setBackoffFactor(2);
         txEvent2.setCurrentRetryTimes(0);
@@ -93,7 +93,7 @@ public class TransactionalEventMysqlRepositoryTest {
                 .build();
         TransactionalEventMysqlRepository repository = new TransactionalEventMysqlRepository(new JdbcTemplateExtension(dataSource));
 
-        TransactionalEvent<TestEvent> txEvent = new TransactionalEvent<TestEvent>();
+        TransactionalEvent<TestEvent> txEvent = new TransactionalEvent<>();
         txEvent.setId(1L);
         txEvent.setInitBackoff(10L);
         txEvent.setBackoffFactor(2);

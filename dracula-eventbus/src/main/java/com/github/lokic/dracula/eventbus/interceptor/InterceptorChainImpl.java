@@ -11,8 +11,6 @@ import static java.util.stream.Collectors.toList;
 
 public class InterceptorChainImpl<E extends Event> implements InterceptorChain<E> {
 
-    private final Class<E> eventClazz;
-
     /**
      * 会引入所有没有被 {@link #filterAttrsWithRules} 过滤掉的拦截器
      *
@@ -33,7 +31,6 @@ public class InterceptorChainImpl<E extends Event> implements InterceptorChain<E
                 .sorted(InterceptorComparator.of(ruleList))
                 .collect(toList());
 
-        this.eventClazz = eventClazz;
         this.interceptors = sortedAttrs.stream()
                 .map(InterceptorAttribute::getInterceptor)
                 .collect(toList());

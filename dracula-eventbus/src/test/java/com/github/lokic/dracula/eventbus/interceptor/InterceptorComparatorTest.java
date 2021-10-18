@@ -85,7 +85,7 @@ public class InterceptorComparatorTest {
     }
 
     private static <E extends Event> InterceptorAttribute<E> mockExt(String name, int order) {
-        return new InterceptorAttribute<E>(new SpyExtensionInterceptor<>(name, order));
+        return new InterceptorAttribute<>(new SpyExtensionInterceptor<>(name, order));
     }
 
 }

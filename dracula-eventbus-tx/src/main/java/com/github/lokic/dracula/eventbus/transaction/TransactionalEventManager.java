@@ -200,8 +200,8 @@ public class TransactionalEventManager {
             if (sb.length() == 0) {
                 sb.append(InetAddress.getLocalHost().getHostAddress());
             }
-        } catch (SocketException e) {
-        } catch (UnknownHostException e) {
+        } catch (SocketException | UnknownHostException e) {
+            log.error("localIp error", e);
         }
         return sb.toString();
     }

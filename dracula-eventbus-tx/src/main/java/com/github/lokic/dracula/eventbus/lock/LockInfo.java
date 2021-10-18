@@ -2,14 +2,14 @@ package com.github.lokic.dracula.eventbus.lock;
 
 public class LockInfo {
 
-    private String lockKey;
+    private final String lockKey;
 
-    private String lockValue;
+    private final String lockValue;
 
     /**
      * 锁的有效期
      */
-    private long expireInMillis;
+    private final long expireInMillis;
 
     public LockInfo(String lockKey, String lockValue, long expireInMillis) {
         this.lockKey = lockKey;

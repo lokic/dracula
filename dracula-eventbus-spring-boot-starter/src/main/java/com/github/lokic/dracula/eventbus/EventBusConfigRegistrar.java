@@ -104,8 +104,8 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
                         .map(InterceptorAttribute::new)
                         .collect(Collectors.toList());
 
-        Map<String, EventHandler<?>> handlerMap = Types.cast(getBeansOfComponent(EventHandler.class, EventHandlerComponent.class));
-        for (EventHandler<?> eventHandler : handlerMap.values()) {
+        Map<String, EventHandler<Event>> handlerMap = Types.cast(getBeansOfComponent(EventHandler.class, EventHandlerComponent.class));
+        for (EventHandler<Event> eventHandler : handlerMap.values()) {
             EventHandlerComponent eventHandlerComponent = AnnotationUtils.findAnnotation(eventHandler.getClass(), EventHandlerComponent.class);
             if (eventHandlerComponent != null) {
                 EventHandlerAttribute attribute = buildEventHandlerComponentAttribute(registry, eventHandlerComponent);
@@ -115,7 +115,6 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
     }
 
 
-    @SuppressWarnings("unchecked")
     private void registerQueue(DefaultEventBus eventBus, AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         Scanner scanner = new Scanner(registry) {
             @Override
@@ -199,9 +198,8 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
     /**
      * 注册event handler到event bus
      */
-    @SuppressWarnings("unchecked")
-    private void registerEventHandlerToEventBus(EventBus eventBus, EventHandler eventHandler, List<InterceptorAttribute<Event>> interceptorAttributes, EventHandlerAttribute attribute) {
-        Class eventClazz = Types.getGeneric(eventHandler, EventHandler.class);
+    private void registerEventHandlerToEventBus(EventBus eventBus, EventHandler<Event> eventHandler, List<InterceptorAttribute<Event>> interceptorAttributes, EventHandlerAttribute attribute) {
+        Class<Event> eventClazz = Types.getGeneric(eventHandler, EventHandler.class);
         eventBus.register(eventClazz, eventHandler, interceptorAttributes, attribute);
     }
 

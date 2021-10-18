@@ -36,6 +36,6 @@ public class HandlerContextImpl implements HandlerContext {
 
     @Override
     public String[] attributeNames() {
-        return this.attributes.keySet().toArray(new String[this.attributes.size()]);
+        return this.attributes.keySet().toArray(new String[0]);
     }
 }
