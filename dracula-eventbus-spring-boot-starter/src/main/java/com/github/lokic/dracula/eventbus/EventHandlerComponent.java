@@ -1,10 +1,10 @@
 package com.github.lokic.dracula.eventbus;
 
 
-import com.github.lokic.dracula.eventbus.executors.EventExecutor;
-import com.github.lokic.dracula.eventbus.executors.SyncEventExecutor;
-import com.github.lokic.dracula.eventbus.handlers.EventHandler;
-import com.github.lokic.dracula.eventbus.interceptors.Rule;
+import com.github.lokic.dracula.eventbus.executor.EventExecutor;
+import com.github.lokic.dracula.eventbus.executor.SyncEventExecutor;
+import com.github.lokic.dracula.eventbus.handler.EventHandler;
+import com.github.lokic.dracula.eventbus.interceptor.Rule;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,8 +23,8 @@ public @interface EventHandlerComponent {
      * 作为对应{@link EventHandler} 的 {@link EventExecutor}
      *
      * @return
-     * @see com.github.lokic.dracula.eventbus.executors.SyncEventExecutor
-     * @see com.github.lokic.dracula.eventbus.executors.AsyncEventExecutor
+     * @see com.github.lokic.dracula.eventbus.executor.SyncEventExecutor
+     * @see com.github.lokic.dracula.eventbus.executor.AsyncEventExecutor
      */
     Class<? extends EventExecutor> executor() default SyncEventExecutor.class;
 

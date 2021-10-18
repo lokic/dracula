@@ -2,9 +2,9 @@ package com.github.lokic.dracula.eventbus;
 
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.handlers.EventHandler;
-import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
-import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
+import com.github.lokic.dracula.eventbus.handler.EventHandler;
+import com.github.lokic.dracula.eventbus.handler.EventHandlerAttribute;
+import com.github.lokic.dracula.eventbus.interceptor.InterceptorAttribute;
 
 import java.util.ArrayList;
 import java.util.List;

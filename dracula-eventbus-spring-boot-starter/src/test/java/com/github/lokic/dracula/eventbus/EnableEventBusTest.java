@@ -2,13 +2,13 @@ package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.event.IntegrationEvent;
-import com.github.lokic.dracula.eventbus.broker.Publisher;
-import com.github.lokic.dracula.eventbus.executors.AsyncEventExecutor;
-import com.github.lokic.dracula.eventbus.executors.SyncEventExecutor;
-import com.github.lokic.dracula.eventbus.executors.threadpool.GracefulSpringThreadPool;
-import com.github.lokic.dracula.eventbus.handlers.EventHandler;
-import com.github.lokic.dracula.eventbus.handlers.HandlerContext;
-import com.github.lokic.dracula.eventbus.interceptors.extensions.ExtensionInterceptor;
+import com.github.lokic.dracula.eventbus.exchanger.Exchanger;
+import com.github.lokic.dracula.eventbus.executor.AsyncEventExecutor;
+import com.github.lokic.dracula.eventbus.executor.SyncEventExecutor;
+import com.github.lokic.dracula.eventbus.executor.threadpool.GracefulSpringThreadPool;
+import com.github.lokic.dracula.eventbus.handler.EventHandler;
+import com.github.lokic.dracula.eventbus.handler.HandlerContext;
+import com.github.lokic.dracula.eventbus.interceptor.extension.ExtensionInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
@@ -42,6 +42,7 @@ public class EnableEventBusTest {
 
             // spring register
             softly.assertThat(context.getBeansOfType(EventBus.class)).hasSize(1);
+            softly.assertThat(context.getBeansOfType(Exchanger.class)).hasSize(1);
             softly.assertThat(context.getBeansOfType(EventHandler.class)).hasSize(2);
             softly.assertThat(context.getBeansOfType(SyncEventExecutor.class)).hasSize(1);
             softly.assertThat(context.getBeansOfType(AsyncEventExecutor.class)).hasSize(1);

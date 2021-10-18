@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.github.lokic</groupId>
             <artifactId>java-plus</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.9</version>
         </dependency>
     </dependencies>
 </project>

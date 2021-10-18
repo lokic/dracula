@@ -1,7 +1,7 @@
 package com.github.lokic.dracula.eventbus.transaction;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.javaplus.Property;
+import com.github.lokic.javaplus.property.Property1;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -70,6 +70,6 @@ public class TransactionalEvent<E extends Event> {
             return status;
         }
 
-        public static final Property<Status, Integer> FROM_STATUS = new Property<>(Status.class, Status::getStatus);
+        public static final Property1<Status, Integer> FROM_STATUS = new Property1<>(Status.class, Status::getStatus);
     }
 }

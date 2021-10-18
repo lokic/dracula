@@ -1,11 +1,12 @@
 package com.github.lokic.dracula.eventbus.transaction;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.GenericTypes;
-import com.github.lokic.dracula.eventbus.broker.Publisher;
+import com.github.lokic.dracula.eventbus.Queue;
+import com.github.lokic.dracula.eventbus.exchanger.Exchanger;
 import com.github.lokic.dracula.eventbus.lock.DistributedLocker;
 import com.github.lokic.dracula.eventbus.lock.DistributedLockerFactory;
 import com.github.lokic.dracula.eventbus.lock.LockInfo;
+import com.github.lokic.dracula.eventbus.publisher.DelegatingPublisher;
 import com.github.lokic.javaplus.Types;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.net.*;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -34,9 +37,9 @@ public class TransactionalEventManager {
 
     private static final LocalDateTime END = LocalDateTime.of(2200, 1, 1, 0, 0, 0);
 
-    private final PublisherManager targetPublisherManager;
-
     private final TransactionalEventRepository repository;
+
+    private final Exchanger exchanger;
 
     @Value("${dracula.event-bus.application.name}")
     private String applicationName;
@@ -54,10 +57,11 @@ public class TransactionalEventManager {
     private final ScheduledThreadPoolExecutor retryCommit = new ScheduledThreadPoolExecutor(1,
             new ThreadFactoryBuilder().setNameFormat("retry-commit-%d").build());
 
-    public TransactionalEventManager(TransactionalEventRepository repository) {
+    public TransactionalEventManager(TransactionalEventRepository repository, Exchanger exchanger) {
         this.repository = repository;
+        this.exchanger = exchanger;
         this.localIp = localIp();
-        this.targetPublisherManager = new PublisherManager();
+
     }
 
     public void init() {
@@ -76,9 +80,13 @@ public class TransactionalEventManager {
         }, 0, fixedDelayInMilliseconds, TimeUnit.MILLISECONDS);
     }
 
+
+    @SuppressWarnings("unchecked")
     public <E extends Event> void send(E event) {
-        targetPublisherManager.findPublisherForEvent(event)
-                .ifPresent(publisher -> publisher.publish(event));
+        Queue<E> queue = exchanger.getQueue(Types.getClass(event));
+        if (queue instanceof DelegatingPublisher) {
+            ((DelegatingPublisher<E>) queue).getTargetPublisher().publish(event);
+        }
     }
 
     public void save(List<TransactionalEvent<? extends Event>> transactionalEvents) {
@@ -117,12 +125,6 @@ public class TransactionalEventManager {
                     }
                 });
     }
-
-
-    public <E extends Event> void addPublisher(Publisher<E> publisher) {
-        targetPublisherManager.addPublisher(publisher);
-    }
-
 
     private LocalDateTime calculateNextRetryTime(LocalDateTime base,
                                                  long initBackoff,
@@ -219,62 +221,4 @@ public class TransactionalEventManager {
         return txEvent;
     }
 
-
-    public static class PublisherManager {
-
-        public Map<Class<? extends Event>, Publisher<? extends Event>> publishers;
-
-        public PublisherManager() {
-            publishers = new ConcurrentHashMap<>();
-        }
-
-        /**
-         * 如果publisher不存在，则添加；否则抛异常
-         *
-         * @param eventClazz
-         * @param publisher
-         * @param <E>
-         */
-        public <E extends Event> void addPublisher(Class<E> eventClazz, Publisher<E> publisher) {
-            if (hasPublishersForEvent(eventClazz)) {
-                throw new IllegalStateException(String.format("eventClass = %s exist publisher", eventClazz.getName()));
-            }
-            publishers.put(eventClazz, publisher);
-        }
-
-        public <E extends Event> void addPublisher(Publisher<E> publisher) {
-            Class<E> eventClazz = GenericTypes.getGeneric(publisher, Publisher.class);
-            addPublisher(eventClazz, publisher);
-        }
-
-        /**
-         * 如果publisher不存在，则添加；否则忽略
-         *
-         * @param eventClazz
-         * @param publisher
-         * @param <E>
-         */
-        public <E extends Event> void addPublisherIfAbsent(Class<E> eventClazz, Publisher<E> publisher) {
-            if (!hasPublishersForEvent(eventClazz)) {
-                publishers.put(eventClazz, publisher);
-            }
-        }
-
-        public <E extends Event> Optional<Publisher<E>> findPublisherForEvent(E event) {
-            return Optional.ofNullable(findPublisher(Types.getClass(event)));
-        }
-
-        private <E extends Event> boolean hasPublishersForEvent(Class<E> eventClazz) {
-            return publishers.containsKey(eventClazz);
-        }
-
-        private <E extends Event> Publisher<E> findPublisher(Class<E> eventClazz) {
-            return Types.cast(publishers.get(eventClazz));
-        }
-
-        public <E extends Event> void processEvent(E event) {
-            findPublisherForEvent(event)
-                    .ifPresent(p -> p.publish(event));
-        }
-    }
 }

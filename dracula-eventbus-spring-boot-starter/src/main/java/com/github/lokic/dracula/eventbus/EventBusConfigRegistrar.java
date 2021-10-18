@@ -1,16 +1,14 @@
 package com.github.lokic.dracula.eventbus;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.broker.Broker;
-import com.github.lokic.dracula.eventbus.broker.Publisher;
-import com.github.lokic.dracula.eventbus.broker.Subscriber;
-import com.github.lokic.dracula.eventbus.executors.EventExecutor;
-import com.github.lokic.dracula.eventbus.handlers.EventHandler;
-import com.github.lokic.dracula.eventbus.handlers.EventHandlerAttribute;
-import com.github.lokic.dracula.eventbus.interceptors.Interceptor;
-import com.github.lokic.dracula.eventbus.interceptors.InterceptorAttribute;
-import com.github.lokic.dracula.eventbus.interceptors.extensions.ExtensionInterceptor;
-import com.github.lokic.dracula.eventbus.interceptors.internals.InternalInterceptorRegistry;
+import com.github.lokic.dracula.eventbus.exchanger.Exchanger;
+import com.github.lokic.dracula.eventbus.executor.EventExecutor;
+import com.github.lokic.dracula.eventbus.handler.EventHandler;
+import com.github.lokic.dracula.eventbus.handler.EventHandlerAttribute;
+import com.github.lokic.dracula.eventbus.interceptor.Interceptor;
+import com.github.lokic.dracula.eventbus.interceptor.InterceptorAttribute;
+import com.github.lokic.dracula.eventbus.interceptor.extension.ExtensionInterceptor;
+import com.github.lokic.dracula.eventbus.interceptor.internal.InternalInterceptorRegistry;
 import com.github.lokic.javaplus.Types;
 import com.google.common.collect.Lists;
 import org.springframework.beans.BeansException;
@@ -71,10 +69,12 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
             Object clazz = attributes.get(ANNOTATION_ATTRIBUTE_OF_EVENT_BUS);
             if (clazz instanceof Class) {
                 addCommonPostProcessor(registry);
-
+                registerToSpring(registry, Exchanger.class);
                 Class<? extends EventBus> eventBusClazz = Types.cast(clazz);
-                registerBroker(importingClassMetadata, registry);
                 EventBus eventBus = getOrRegisterEventBus(registry, eventBusClazz);
+                if (eventBus instanceof DefaultEventBus) {
+                    registerQueue((DefaultEventBus) eventBus, importingClassMetadata, registry);
+                }
                 registerEventHandler(eventBus, importingClassMetadata, registry);
             }
 
@@ -116,23 +116,22 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
 
 
     @SuppressWarnings("unchecked")
-    private void registerBroker(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    private void registerQueue(DefaultEventBus eventBus, AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         Scanner scanner = new Scanner(registry) {
             @Override
             List<Class<? extends Annotation>> getCustomIncludeFilters() {
-                return Lists.newArrayList(PublisherComponent.class, SubscriberComponent.class, BrokerComponent.class);
+                return Lists.newArrayList(PublisherComponent.class, SubscriberComponent.class);
             }
         };
 
         Set<String> basePackages = getBasePackages(importingClassMetadata);
         scanner.doScan(basePackages.toArray(new String[0]));
 
-        Broker broker = registerToSpring(registry, Broker.class);
         Map<String, Publisher<?>> publisherMap = Types.cast(getBeansOfComponent(Publisher.class, PublisherComponent.class));
         Map<String, Subscriber<?>> subscriberMap = Types.cast(getBeansOfComponent(Subscriber.class, SubscriberComponent.class));
 
-        publisherMap.forEach((k, p) -> broker.bind(p));
-        subscriberMap.forEach((k, s) -> broker.bind(s));
+        publisherMap.forEach((k, p) -> eventBus.bind(p));
+        subscriberMap.forEach((k, s) -> eventBus.bind(s));
     }
 
     private <T> Map<String, T> getBeansOfComponent(Class<T> componentType, Class<? extends Annotation> annotationType) {
@@ -202,7 +201,7 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar, B
      */
     @SuppressWarnings("unchecked")
     private void registerEventHandlerToEventBus(EventBus eventBus, EventHandler eventHandler, List<InterceptorAttribute<Event>> interceptorAttributes, EventHandlerAttribute attribute) {
-        Class eventClazz = GenericTypes.getGeneric(eventHandler, EventHandler.class);
+        Class eventClazz = Types.getGeneric(eventHandler, EventHandler.class);
         eventBus.register(eventClazz, eventHandler, interceptorAttributes, attribute);
     }
 

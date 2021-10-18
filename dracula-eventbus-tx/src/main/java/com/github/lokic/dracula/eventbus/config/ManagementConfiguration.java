@@ -1,5 +1,6 @@
 package com.github.lokic.dracula.eventbus.config;
 
+import com.github.lokic.dracula.eventbus.exchanger.Exchanger;
 import com.github.lokic.dracula.eventbus.transaction.JdbcTemplateExtension;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEventManager;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEventRepository;
@@ -23,8 +24,8 @@ public class ManagementConfiguration {
     }
 
     @Bean
-    public TransactionalEventManager transactionalEventManagement(TransactionalEventRepository repository) {
-        return new TransactionalEventManager(repository);
+    public TransactionalEventManager transactionalEventManagement(TransactionalEventRepository repository, Exchanger exchanger) {
+        return new TransactionalEventManager(repository, exchanger);
     }
 
     @Bean
