@@ -1,7 +1,9 @@
 package com.github.lokic.dracula.eventbus.exchanger;
 
 import com.github.lokic.dracula.event.Event;
+import com.github.lokic.dracula.eventbus.Publisher;
 import com.github.lokic.dracula.eventbus.Queue;
+import com.github.lokic.dracula.eventbus.Subscriber;
 import com.github.lokic.dracula.eventbus.queue.DelegatingQueue;
 import com.github.lokic.dracula.eventbus.queue.SimpleDelegatingQueue;
 
@@ -36,6 +38,22 @@ public class Exchanger {
             return queue;
         }
         return createQueue(eventClazz);
+    }
+
+    public <E extends Event> void bind(Publisher<E> publisher) {
+        Class<E> eventClazz = publisher.getGenericType();
+        Queue<E> queue = getOrCreateQueue(eventClazz);
+        if (queue instanceof DelegatingQueue) {
+            ((DelegatingQueue<E>) queue).setTargetPublisher(publisher);
+        }
+    }
+
+    public <E extends Event> void bind(Subscriber<E> subscriber) {
+        Class<E> eventClazz = subscriber.getGenericType();
+        Queue<E> queue = getOrCreateQueue(eventClazz);
+        if (queue instanceof DelegatingQueue) {
+            ((DelegatingQueue<E>) queue).setTargetSubscriber(subscriber);
+        }
     }
 
     private Binding route(Class<?> clazz) {

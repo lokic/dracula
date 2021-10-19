@@ -9,15 +9,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
 @Configuration
-public class ManagementConfiguration {
+public class EventBusTransactionalAutoConfiguration {
 
     @Bean
-    @ConditionalOnBean(JdbcTemplate.class)
     @ConditionalOnProperty(name = "dracula.event-bus.transaction.repository-mode", havingValue = "mysql")
     public TransactionalEventRepository transactionalEventRepository(DataSource dataSource) {
         return new TransactionalEventMysqlRepository(new JdbcTemplateExtension(dataSource));

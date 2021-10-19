@@ -2,6 +2,7 @@ package com.github.lokic.dracula.eventbus.integration.kafka;
 
 import com.github.lokic.dracula.event.IntegrationEvent;
 import com.github.lokic.dracula.eventbus.DefaultEventBus;
+import com.github.lokic.dracula.eventbus.exchanger.Exchanger;
 import com.github.lokic.dracula.eventbus.integration.publisher.Serializer;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -19,11 +20,12 @@ public class KafkaIntegrationPublisherTest {
         }
     };
 
-    DefaultEventBus eventBus = new DefaultEventBus();
+    Exchanger exchanger = new Exchanger();
+    DefaultEventBus eventBus = new DefaultEventBus(exchanger);
 
     public KafkaIntegrationPublisherTest() {
         MockitoAnnotations.initMocks(this);
-        eventBus.bind(publisher);
+        exchanger.bind(publisher);
     }
 
     @Test

@@ -50,11 +50,9 @@ public class DefaultEventBusTest {
 
         List<Publisher<? extends Event>> publishers = Lists.newArrayList(publisher1, publisher2);
         List<Subscriber<? extends Event>> subscribers = Lists.newArrayList(subscriber2, subscriber3);
-
-        DefaultEventBus eventBus = new DefaultEventBus();
-        publishers.forEach(eventBus::bind);
-        subscribers.forEach(eventBus::bind);
-        Exchanger exchanger = Whitebox.getInternalState(eventBus, "exchanger");
+        Exchanger exchanger = new Exchanger();
+        publishers.forEach(exchanger::bind);
+        subscribers.forEach(exchanger::bind);
         List<?> bindings = Whitebox.getInternalState(exchanger, "bindings");
         Assert.assertEquals(3, bindings.size());
     }
@@ -63,10 +61,10 @@ public class DefaultEventBusTest {
     public void test_wrap() {
         DelegatingPublisher<TestEvent1> wrapPublisher = Mockito.spy(new TestDelegatePublisher());
         Publisher<TestEvent1> publisher = Mockito.spy(new TestPublisher());
-
-        DefaultEventBus eventBus = new DefaultEventBus();
-        eventBus.bind(publisher);
-        eventBus.bind(wrapPublisher);
+        Exchanger exchanger = new Exchanger();
+        DefaultEventBus eventBus = new DefaultEventBus(exchanger);
+        exchanger.bind(publisher);
+        exchanger.bind(wrapPublisher);
 
         eventBus.send(new TestEvent1());
 

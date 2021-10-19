@@ -61,7 +61,6 @@ public class TransactionalEventManager {
         this.repository = repository;
         this.exchanger = exchanger;
         this.localIp = localIp();
-
     }
 
     public void init() {

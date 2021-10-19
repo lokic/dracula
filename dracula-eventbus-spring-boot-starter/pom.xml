@@ -30,6 +30,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.lokic</groupId>
+            <artifactId>dracula-eventbus-tx</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

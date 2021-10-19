@@ -25,11 +25,17 @@ public class SimpleDelegatingQueue<E extends Event> implements DelegatingQueue<E
 
     @Override
     public void setTargetPublisher(Publisher<E> publisher) {
+        if (publisher instanceof DelegatingPublisher) {
+            ((DelegatingPublisher<E>) publisher).setTargetPublisher(getTargetPublisher());
+        }
         delegatePublisher.setTargetPublisher(publisher);
     }
 
     @Override
     public void setTargetSubscriber(Subscriber<E> subscriber) {
+        if (subscriber instanceof DelegatingSubscriber) {
+            ((DelegatingSubscriber<E>) subscriber).setTargetSubscriber(getTargetSubscriber());
+        }
         delegateSubscriber.setTargetSubscriber(subscriber);
     }
 

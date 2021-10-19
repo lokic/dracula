@@ -1,4 +1,4 @@
-package com.github.lokic.dracula.eventbus;
+package com.github.lokic.dracula.eventbus.annotation;
 
 
 import com.github.lokic.dracula.eventbus.executor.EventExecutor;
@@ -11,9 +11,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * @author loki
- */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EventHandlerComponent {

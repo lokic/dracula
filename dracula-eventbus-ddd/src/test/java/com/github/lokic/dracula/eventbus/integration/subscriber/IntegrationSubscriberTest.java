@@ -2,6 +2,7 @@ package com.github.lokic.dracula.eventbus.integration.subscriber;
 
 import com.github.lokic.dracula.event.IntegrationEvent;
 import com.github.lokic.dracula.eventbus.DefaultEventBus;
+import com.github.lokic.dracula.eventbus.exchanger.Exchanger;
 import com.github.lokic.dracula.eventbus.handler.EventHandler;
 import com.github.lokic.dracula.eventbus.handler.EventHandlerAttribute;
 import lombok.ToString;
@@ -14,7 +15,8 @@ public class IntegrationSubscriberTest {
 
     @Test
     public void test_receive() {
-        DefaultEventBus eventBus = new DefaultEventBus();
+        Exchanger exchanger = new Exchanger();
+        DefaultEventBus eventBus = new DefaultEventBus(exchanger);
 
 
         EventHandler<TestEvent> eventHandler1 = Mockito.spy(new EventHandler<TestEvent>() {
@@ -31,7 +33,7 @@ public class IntegrationSubscriberTest {
 
 
         KafkaIntegrationSubscriber subscriber = new KafkaIntegrationSubscriber();
-        eventBus.bind(subscriber);
+        exchanger.bind(subscriber);
         eventBus.register(TestEvent.class, eventHandler1, new ArrayList<>(), EventHandlerAttribute.sync());
         eventBus.register(TestEvent.class, eventHandler2, new ArrayList<>(), EventHandlerAttribute.sync());
         subscriber.receive("xxx");
