@@ -12,7 +12,7 @@ dracula是用于简化DDD相关编程的工具包。该项目取`dracula`之名�
 
 ## dracula-eventbus
 
-支持 事件驱动架构EDA（Event Driven Architecture）中事件的使用，对事件提供更好的语义集成。
+支持 事件驱动架构EDA（Event Driven Architecture）中使用，对事件提供更好的语义集成，本地消息队列和消息中间件在业务使用中提供统一接口接入。
 
 ### 架构
 
