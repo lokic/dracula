@@ -205,7 +205,7 @@ public class TransactionalEventManager {
         return sb.toString();
     }
 
-    public <E extends Event> TransactionalEvent<E> convert(E event) {
+    public <E extends Event> TransactionalEvent<E> initTransactionEvent(E event) {
         TransactionalEvent<E> txEvent = new TransactionalEvent<>();
         // todo 基于事件配置
         txEvent.setEventKey("dummy");

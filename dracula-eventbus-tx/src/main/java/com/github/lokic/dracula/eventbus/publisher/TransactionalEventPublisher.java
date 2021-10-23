@@ -17,7 +17,7 @@ public class TransactionalEventPublisher<E extends Event> extends SimpleDelegati
     /**
      * 等待发送的消息
      */
-    private static final ThreadLocal<List<TransactionalEvent<? extends Event>>> WAITING_PUBLISH_EVENTS = ThreadLocal.withInitial(ArrayList::new);
+    private static final ThreadLocal<List<? extends Event>> WAITING_PUBLISH_EVENTS = ThreadLocal.withInitial(ArrayList::new);
 
 
     /**
@@ -38,21 +38,25 @@ public class TransactionalEventPublisher<E extends Event> extends SimpleDelegati
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             getTargetPublisher().publish(event);
         } else {
-            WAITING_PUBLISH_EVENTS.get().add(manager.convert(event));
+            ((List<E>) WAITING_PUBLISH_EVENTS.get()).add(event);
             if (TX_REGISTERED.get().compareAndSet(false, true)) {
                 TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                    private final List<TransactionalEvent<? extends Event>> txEvents = new ArrayList<>();
+
                     @Override
                     public void beforeCommit(boolean readOnly) {
-                        manager.save(WAITING_PUBLISH_EVENTS.get());
+                        for (Event evt : WAITING_PUBLISH_EVENTS.get()) {
+                            txEvents.add(manager.initTransactionEvent(evt));
+                        }
+                        manager.save(txEvents);
                     }
 
                     @Override
                     public void afterCommit() {
                         // 为了确保发送的时效，会在事务提交之后，主动发送一次消息
                         try {
-                            // todo: batch publish ?
-                            WAITING_PUBLISH_EVENTS.get().forEach(txEvent -> getTargetPublisher().publish((E) txEvent.getEvent()));
-                            manager.handleSuccess(WAITING_PUBLISH_EVENTS.get());
+                            getTargetPublisher().publish((List<E>) WAITING_PUBLISH_EVENTS.get());
+                            manager.handleSuccess(txEvents);
                         } catch (Exception e) {
                             // 发生了异常，打印日志之后不做处理，后面会有重试任务重试
                             log.error("afterCommit happen error", e);

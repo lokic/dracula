@@ -40,7 +40,7 @@ public class KafkaIntegrationPublisherTest {
     public void test_notAdd() {
         eventBus.send(new OrderCancelled());
         Mockito.verify(publisher, Mockito.never())
-                .send(Mockito.any());
+                .send(Mockito.any(OrderCreated.class));
     }
 
     public static abstract class OrderEvent extends IntegrationEvent {
