@@ -10,7 +10,6 @@ import com.github.lokic.dracula.eventbus.publisher.DelegatingPublisher;
 import com.github.lokic.javaplus.Types;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.net.*;
@@ -41,31 +40,33 @@ public class TransactionalEventManager {
 
     private final Exchanger exchanger;
 
+    private final EventKeyParser eventKeyParser;
+
+    private final DistributedLockerFactory distributedLockerFactory;
+
+    private final String businessKey;
+
     @Value("${dracula.event-bus.application.name}")
     private String applicationName;
 
     @Value("${dracula.event-bus.transaction.publish.scheduling.fixed-delay-in-milliseconds:1000}")
     private long fixedDelayInMilliseconds;
 
-    @Autowired
-    private DistributedLockerFactory distributedLockerFactory;
-
-    private final String localIp;
-
-    private String businessKey;
 
     private final ScheduledThreadPoolExecutor retryCommit = new ScheduledThreadPoolExecutor(1,
             new ThreadFactoryBuilder().setNameFormat("retry-commit-%d").build());
 
-    public TransactionalEventManager(TransactionalEventRepository repository, Exchanger exchanger) {
+    public TransactionalEventManager(TransactionalEventRepository repository, Exchanger exchanger, EventKeyParser eventKeyParser, DistributedLockerFactory distributedLockerFactory) {
         this.repository = repository;
         this.exchanger = exchanger;
-        this.localIp = localIp();
+        this.eventKeyParser = eventKeyParser;
+        this.distributedLockerFactory = distributedLockerFactory;
+        this.businessKey = getBusinessKey();
     }
 
     public void init() {
         retryCommit.scheduleAtFixedRate(() -> {
-            LockInfo lockInfo = new LockInfo("retryCommit:" + applicationName, UUID.randomUUID().toString(), 1000L);
+            LockInfo lockInfo = new LockInfo("retryCommit:" + applicationName, UUID.randomUUID().toString(), 10_000L);
             try (DistributedLocker locker = distributedLockerFactory.create(lockInfo)) {
                 if (locker.tryLock()) {
                     long start = System.currentTimeMillis();
@@ -101,11 +102,7 @@ public class TransactionalEventManager {
      * @return
      */
     private String getBusinessKey() {
-        if (businessKey != null) {
-            return businessKey;
-        }
-        businessKey = applicationName + "@" + localIp;
-        return businessKey;
+        return applicationName + "@" + localIp();
     }
 
     public void processPendingCompensationEvents() {
@@ -137,7 +134,7 @@ public class TransactionalEventManager {
         txEvent.setCurrentRetryTimes(calculateRetryTimes(txEvent));
         txEvent.setStatus(TransactionalEvent.Status.SUCCESS);
         txEvent.setNextRetryTime(END);
-        txEvent.setEditor(getBusinessKey());
+        txEvent.setEditor(businessKey);
         repository.updateStatus(txEvent);
     }
 
@@ -145,7 +142,7 @@ public class TransactionalEventManager {
         List<Long> ids = txEvents.stream()
                 .map(TransactionalEvent::getId)
                 .collect(Collectors.toList());
-        repository.updateSuccessByEventIds(getBusinessKey(), END, ids);
+        repository.updateSuccessByEventIds(businessKey, END, ids);
     }
 
     public void handleFail(TransactionalEvent<? extends Event> txEvent, Exception ex) {
@@ -162,7 +159,7 @@ public class TransactionalEventManager {
         txEvent.setCurrentRetryTimes(currentRetryTimes);
         txEvent.setNextRetryTime(nextRetryTime);
         txEvent.setStatus(status);
-        txEvent.setEditor(getBusinessKey());
+        txEvent.setEditor(businessKey);
         if (txEvent.getStatus() == TransactionalEvent.Status.FAIL) {
             log.error("txEvent retry fail, id = " + txEvent.getId(), ex);
         }
@@ -207,16 +204,15 @@ public class TransactionalEventManager {
 
     public <E extends Event> TransactionalEvent<E> initTransactionEvent(E event) {
         TransactionalEvent<E> txEvent = new TransactionalEvent<>();
-        // todo 基于事件配置
-        txEvent.setEventKey("dummy");
+        txEvent.setEventKey(eventKeyParser.parseEventKey(event));
         txEvent.setInitBackoff(DEFAULT_INIT_BACKOFF);
         txEvent.setBackoffFactor(DEFAULT_BACKOFF_FACTOR);
         txEvent.setCurrentRetryTimes(0);
         txEvent.setMaxRetryTimes(DEFAULT_MAX_RETRY_TIMES);
         txEvent.setEvent(event);
         txEvent.setStatus(TransactionalEvent.Status.PENDING);
-        txEvent.setCreator(getBusinessKey());
-        txEvent.setEditor(getBusinessKey());
+        txEvent.setCreator(businessKey);
+        txEvent.setEditor(businessKey);
         return txEvent;
     }
 

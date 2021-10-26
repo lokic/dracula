@@ -4,7 +4,6 @@ import com.github.lokic.dracula.eventbus.annotation.EnableEventBus;
 import com.github.lokic.dracula.eventbus.executor.AsyncEventExecutor;
 import com.github.lokic.dracula.eventbus.executor.threadpool.GracefulSpringThreadPool;
 import com.github.lokic.dracula.eventbus.lock.DistributedLockerFactory;
-import com.github.lokic.dracula.eventbus.lock.redis.RedisDistributedLockerFactory;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +48,8 @@ public class TestConfig {
 
     @Bean
     public DistributedLockerFactory distributedLockerFactory() {
-        return new RedisDistributedLockerFactory();
+        return new DistributedLockerFactory() {
+        };
     }
 
 }

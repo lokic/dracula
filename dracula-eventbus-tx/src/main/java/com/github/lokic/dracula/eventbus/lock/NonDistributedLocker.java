@@ -1,6 +1,9 @@
 package com.github.lokic.dracula.eventbus.lock;
 
-public class DefaultDistributedLocker implements DistributedLocker {
+/**
+ * 没有分布式锁
+ */
+public class NonDistributedLocker implements DistributedLocker {
 
     @Override
     public boolean hasLock() {

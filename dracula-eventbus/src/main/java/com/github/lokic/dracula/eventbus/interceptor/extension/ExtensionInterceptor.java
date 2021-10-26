@@ -7,7 +7,6 @@ import com.github.lokic.dracula.eventbus.interceptor.InterceptorType;
 /**
  * 扩展拦截器，给业务应用使用
  * <p>
- * TODO 是否叫应用拦截器会更加合适？ApplicationInterceptor
  *
  * @param <E>
  */

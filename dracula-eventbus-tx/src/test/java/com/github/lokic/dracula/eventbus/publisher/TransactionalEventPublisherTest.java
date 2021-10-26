@@ -6,6 +6,7 @@ import com.github.lokic.dracula.eventbus.EventBus;
 import com.github.lokic.dracula.eventbus.exchanger.Exchanger;
 import com.github.lokic.dracula.eventbus.executor.EventExecutor;
 import com.github.lokic.dracula.eventbus.handler.EventHandler;
+import com.github.lokic.dracula.eventbus.transaction.EventKeyParser;
 import com.github.lokic.dracula.eventbus.transaction.JdbcTemplateExtension;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEventManager;
 import com.github.lokic.dracula.eventbus.transaction.mysql.TransactionalEventMysqlRepository;
@@ -37,7 +38,7 @@ public class TransactionalEventPublisherTest {
                 = new TransactionalEventMysqlRepository(new JdbcTemplateExtension(dataSource));
 
         Exchanger exchanger = new Exchanger();
-        TransactionalEventManager manager = Mockito.spy(new TransactionalEventManager(repository, exchanger));
+        TransactionalEventManager manager = Mockito.spy(new TransactionalEventManager(repository, exchanger, new EventKeyParser(), null));
         PlatformTransactionManager tm = new DataSourceTransactionManager(dataSource);
         TransactionTemplate template = new TransactionTemplate(tm);
 

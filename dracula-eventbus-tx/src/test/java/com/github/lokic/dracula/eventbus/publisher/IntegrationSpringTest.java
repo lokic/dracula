@@ -1,16 +1,17 @@
 package com.github.lokic.dracula.eventbus.publisher;
 
-import com.github.lokic.dracula.eventbus.config.EventBusTransactionalAutoConfiguration;
+import com.github.lokic.dracula.eventbus.config.TransactionalEventBusAutoConfiguration;
 import com.github.lokic.dracula.eventbus.exchanger.Exchanger;
 import com.github.lokic.dracula.eventbus.lock.DistributedLockerFactory;
-import com.github.lokic.dracula.eventbus.lock.redis.RedisDistributedLockerFactory;
 import com.github.lokic.dracula.eventbus.transaction.TransactionalEventManager;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,12 +26,15 @@ import javax.sql.DataSource;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
 @PropertySource(value = "classpath:application.properties")
-@Import({IntegrationSpringTest.TestConfig.class, EventBusTransactionalAutoConfiguration.class})
+@Import({IntegrationSpringTest.TestConfig.class, TransactionalEventBusAutoConfiguration.class})
 public class IntegrationSpringTest {
 
 
     @Autowired
     private ApplicationContext context;
+
+    @SpyBean
+    private TransactionalEventManager transactionalEventManager;
 
     @Test
     public void test() {
@@ -41,6 +45,8 @@ public class IntegrationSpringTest {
             softly.assertThat(context.getBeansOfType(TransactionalEventManager.class)).hasSize(1);
 
         });
+
+        Mockito.verify(transactionalEventManager, Mockito.times(1)).init();
     }
 
 
@@ -61,7 +67,9 @@ public class IntegrationSpringTest {
 
         @Bean
         public DistributedLockerFactory distributedLockerFactory() {
-            return new RedisDistributedLockerFactory();
+            return new DistributedLockerFactory() {
+
+            };
         }
 
     }

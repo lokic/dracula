@@ -32,7 +32,7 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
 
     public TransactionalEventMysqlRepository(JdbcTemplateExtension jdbcTemplate, EventTypeSerializer eventTypeSerializer) {
         Objects.requireNonNull(jdbcTemplate, "jdbcTemplate is null");
-        Objects.requireNonNull(eventTypeSerializer, "eventTypeHandler is null");
+        Objects.requireNonNull(eventTypeSerializer, "eventTypeSerializer is null");
         this.jdbcTemplate = jdbcTemplate;
         this.eventTypeSerializer = eventTypeSerializer;
     }
