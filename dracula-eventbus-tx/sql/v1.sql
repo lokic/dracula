@@ -1,4 +1,4 @@
-CREATE TABLE `dr_transactional_event`
+CREATE TABLE `dr_transaction_event`
 (
     id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     current_retry_times TINYINT      NOT NULL DEFAULT 0 COMMENT '当前重试次数',

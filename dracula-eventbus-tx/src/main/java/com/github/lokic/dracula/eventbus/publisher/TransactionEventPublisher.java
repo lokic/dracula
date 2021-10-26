@@ -1,8 +1,8 @@
 package com.github.lokic.dracula.eventbus.publisher;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.transaction.TransactionalEvent;
-import com.github.lokic.dracula.eventbus.transaction.TransactionalEventManager;
+import com.github.lokic.dracula.eventbus.transaction.TransactionEvent;
+import com.github.lokic.dracula.eventbus.transaction.TransactionEventManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class TransactionalEventPublisher<E extends Event> extends SimpleDelegatingPublisher<E> {
+public class TransactionEventPublisher<E extends Event> extends SimpleDelegatingPublisher<E> {
 
     /**
      * 等待发送的消息
@@ -25,9 +25,9 @@ public class TransactionalEventPublisher<E extends Event> extends SimpleDelegati
      */
     private static final ThreadLocal<AtomicBoolean> TX_REGISTERED = ThreadLocal.withInitial(() -> new AtomicBoolean(false));
 
-    private final TransactionalEventManager manager;
+    private final TransactionEventManager manager;
 
-    public TransactionalEventPublisher(Class<E> genericType, TransactionalEventManager manager) {
+    public TransactionEventPublisher(Class<E> genericType, TransactionEventManager manager) {
         super(genericType);
         this.manager = manager;
     }
@@ -41,7 +41,7 @@ public class TransactionalEventPublisher<E extends Event> extends SimpleDelegati
             ((List<E>) WAITING_PUBLISH_EVENTS.get()).add(event);
             if (TX_REGISTERED.get().compareAndSet(false, true)) {
                 TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    private final List<TransactionalEvent<? extends Event>> txEvents = new ArrayList<>();
+                    private final List<TransactionEvent<? extends Event>> txEvents = new ArrayList<>();
 
                     @Override
                     public void beforeCommit(boolean readOnly) {

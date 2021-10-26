@@ -1,6 +1,6 @@
 package com.github.lokic.dracula.eventbus;
 
-import com.github.lokic.dracula.eventbus.config.TransactionalEventBusAutoConfiguration;
+import com.github.lokic.dracula.eventbus.config.TransactionEventBusAutoConfiguration;
 import com.github.lokic.dracula.eventbus.exchanger.Exchanger;
 import com.github.lokic.dracula.eventbus.executor.AsyncEventExecutor;
 import com.github.lokic.dracula.eventbus.executor.SyncEventExecutor;
@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
 @PropertySource(value = "classpath:application.properties")
-@Import({TransactionalEventBusAutoConfiguration.class, TestConfig.class})
+@Import({TransactionEventBusAutoConfiguration.class, TestConfig.class})
 public class EnableEventBusTest {
 
 

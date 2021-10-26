@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-public class TransactionalEventManager {
+public class TransactionEventManager {
 
     private static final int SCHEDULED_TASK_QUERY_LIMIT = 100;
 
@@ -36,7 +36,7 @@ public class TransactionalEventManager {
 
     private static final LocalDateTime END = LocalDateTime.of(2200, 1, 1, 0, 0, 0);
 
-    private final TransactionalEventRepository repository;
+    private final TransactionEventRepository repository;
 
     private final Exchanger exchanger;
 
@@ -56,7 +56,7 @@ public class TransactionalEventManager {
     private final ScheduledThreadPoolExecutor retryCommit = new ScheduledThreadPoolExecutor(1,
             new ThreadFactoryBuilder().setNameFormat("retry-commit-%d").build());
 
-    public TransactionalEventManager(TransactionalEventRepository repository, Exchanger exchanger, EventKeyParser eventKeyParser, DistributedLockerFactory distributedLockerFactory) {
+    public TransactionEventManager(TransactionEventRepository repository, Exchanger exchanger, EventKeyParser eventKeyParser, DistributedLockerFactory distributedLockerFactory) {
         this.repository = repository;
         this.exchanger = exchanger;
         this.eventKeyParser = eventKeyParser;
@@ -89,11 +89,11 @@ public class TransactionalEventManager {
         }
     }
 
-    public void save(List<TransactionalEvent<? extends Event>> transactionalEvents) {
+    public void save(List<TransactionEvent<? extends Event>> transactionEvents) {
         // 在保存的时候，统一设置下次重试时间，防止在保存之前，时间已经到需要重试的时间了
         LocalDateTime nextRetryTime = calculateNextRetryTime(LocalDateTime.now(), DEFAULT_INIT_BACKOFF, DEFAULT_BACKOFF_FACTOR, 0);
-        transactionalEvents.forEach(txEvent -> txEvent.setNextRetryTime(nextRetryTime));
-        repository.save(transactionalEvents);
+        transactionEvents.forEach(txEvent -> txEvent.setNextRetryTime(nextRetryTime));
+        repository.save(transactionEvents);
     }
 
     /**
@@ -130,24 +130,24 @@ public class TransactionalEventManager {
         return base.plusSeconds((long) delta);
     }
 
-    public void handleSuccess(TransactionalEvent<? extends Event> txEvent) {
+    public void handleSuccess(TransactionEvent<? extends Event> txEvent) {
         txEvent.setCurrentRetryTimes(calculateRetryTimes(txEvent));
-        txEvent.setStatus(TransactionalEvent.Status.SUCCESS);
+        txEvent.setStatus(TransactionEvent.Status.SUCCESS);
         txEvent.setNextRetryTime(END);
         txEvent.setEditor(businessKey);
         repository.updateStatus(txEvent);
     }
 
-    public void handleSuccess(List<TransactionalEvent<? extends Event>> txEvents) {
+    public void handleSuccess(List<TransactionEvent<? extends Event>> txEvents) {
         List<Long> ids = txEvents.stream()
-                .map(TransactionalEvent::getId)
+                .map(TransactionEvent::getId)
                 .collect(Collectors.toList());
         repository.updateSuccessByEventIds(businessKey, END, ids);
     }
 
-    public void handleFail(TransactionalEvent<? extends Event> txEvent, Exception ex) {
+    public void handleFail(TransactionEvent<? extends Event> txEvent, Exception ex) {
         Integer currentRetryTimes = calculateRetryTimes(txEvent);
-        TransactionalEvent.Status status = calculateStatus(txEvent);
+        TransactionEvent.Status status = calculateStatus(txEvent);
         // 计算下一次的执行时间
         LocalDateTime nextRetryTime = calculateNextRetryTime(
                 txEvent.getNextRetryTime(),
@@ -160,19 +160,19 @@ public class TransactionalEventManager {
         txEvent.setNextRetryTime(nextRetryTime);
         txEvent.setStatus(status);
         txEvent.setEditor(businessKey);
-        if (txEvent.getStatus() == TransactionalEvent.Status.FAIL) {
+        if (txEvent.getStatus() == TransactionEvent.Status.FAIL) {
             log.error("txEvent retry fail, id = " + txEvent.getId(), ex);
         }
         repository.updateStatus(txEvent);
     }
 
-    public TransactionalEvent.Status calculateStatus(TransactionalEvent<? extends Event> txEvent) {
+    public TransactionEvent.Status calculateStatus(TransactionEvent<? extends Event> txEvent) {
         return calculateRetryTimes(txEvent).compareTo(txEvent.getMaxRetryTimes()) >= 0
-                ? TransactionalEvent.Status.FAIL
-                : TransactionalEvent.Status.PENDING;
+                ? TransactionEvent.Status.FAIL
+                : TransactionEvent.Status.PENDING;
     }
 
-    public Integer calculateRetryTimes(TransactionalEvent<? extends Event> txEvent) {
+    public Integer calculateRetryTimes(TransactionEvent<? extends Event> txEvent) {
         return txEvent.getCurrentRetryTimes().compareTo(txEvent.getMaxRetryTimes()) >= 0
                 ? txEvent.getMaxRetryTimes()
                 : txEvent.getCurrentRetryTimes() + 1;
@@ -202,15 +202,15 @@ public class TransactionalEventManager {
         return sb.toString();
     }
 
-    public <E extends Event> TransactionalEvent<E> initTransactionEvent(E event) {
-        TransactionalEvent<E> txEvent = new TransactionalEvent<>();
+    public <E extends Event> TransactionEvent<E> initTransactionEvent(E event) {
+        TransactionEvent<E> txEvent = new TransactionEvent<>();
         txEvent.setEventKey(eventKeyParser.parseEventKey(event));
         txEvent.setInitBackoff(DEFAULT_INIT_BACKOFF);
         txEvent.setBackoffFactor(DEFAULT_BACKOFF_FACTOR);
         txEvent.setCurrentRetryTimes(0);
         txEvent.setMaxRetryTimes(DEFAULT_MAX_RETRY_TIMES);
         txEvent.setEvent(event);
-        txEvent.setStatus(TransactionalEvent.Status.PENDING);
+        txEvent.setStatus(TransactionEvent.Status.PENDING);
         txEvent.setCreator(businessKey);
         txEvent.setEditor(businessKey);
         return txEvent;

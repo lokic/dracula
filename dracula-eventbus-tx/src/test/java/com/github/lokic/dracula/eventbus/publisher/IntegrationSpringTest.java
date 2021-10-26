@@ -1,9 +1,9 @@
 package com.github.lokic.dracula.eventbus.publisher;
 
-import com.github.lokic.dracula.eventbus.config.TransactionalEventBusAutoConfiguration;
+import com.github.lokic.dracula.eventbus.config.TransactionEventBusAutoConfiguration;
 import com.github.lokic.dracula.eventbus.exchanger.Exchanger;
 import com.github.lokic.dracula.eventbus.lock.DistributedLockerFactory;
-import com.github.lokic.dracula.eventbus.transaction.TransactionalEventManager;
+import com.github.lokic.dracula.eventbus.transaction.TransactionEventManager;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ import javax.sql.DataSource;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
 @PropertySource(value = "classpath:application.properties")
-@Import({IntegrationSpringTest.TestConfig.class, TransactionalEventBusAutoConfiguration.class})
+@Import({IntegrationSpringTest.TestConfig.class, TransactionEventBusAutoConfiguration.class})
 public class IntegrationSpringTest {
 
 
@@ -34,7 +34,7 @@ public class IntegrationSpringTest {
     private ApplicationContext context;
 
     @SpyBean
-    private TransactionalEventManager transactionalEventManager;
+    private TransactionEventManager transactionEventManager;
 
     @Test
     public void test() {
@@ -42,11 +42,11 @@ public class IntegrationSpringTest {
         SoftAssertions.assertSoftly(softly -> {
 
             // spring register
-            softly.assertThat(context.getBeansOfType(TransactionalEventManager.class)).hasSize(1);
+            softly.assertThat(context.getBeansOfType(TransactionEventManager.class)).hasSize(1);
 
         });
 
-        Mockito.verify(transactionalEventManager, Mockito.times(1)).init();
+        Mockito.verify(transactionEventManager, Mockito.times(1)).init();
     }
 
 

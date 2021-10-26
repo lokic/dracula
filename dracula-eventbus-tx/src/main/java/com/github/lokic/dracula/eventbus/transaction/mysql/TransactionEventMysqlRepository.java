@@ -3,8 +3,8 @@ package com.github.lokic.dracula.eventbus.transaction.mysql;
 import com.github.lokic.dracula.event.Event;
 import com.github.lokic.dracula.eventbus.transaction.EventTypeSerializer;
 import com.github.lokic.dracula.eventbus.transaction.JdbcTemplateExtension;
-import com.github.lokic.dracula.eventbus.transaction.TransactionalEvent;
-import com.github.lokic.dracula.eventbus.transaction.TransactionalEventRepository;
+import com.github.lokic.dracula.eventbus.transaction.TransactionEvent;
+import com.github.lokic.dracula.eventbus.transaction.TransactionEventRepository;
 import com.github.lokic.dracula.eventbus.transaction.serializer.FastJsonEventTypeSerializer;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -19,18 +19,18 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TransactionalEventMysqlRepository implements TransactionalEventRepository {
+public class TransactionEventMysqlRepository implements TransactionEventRepository {
 
     private final JdbcTemplateExtension jdbcTemplate;
 
     private final EventTypeSerializer eventTypeSerializer;
 
 
-    public TransactionalEventMysqlRepository(JdbcTemplateExtension jdbcTemplate) {
+    public TransactionEventMysqlRepository(JdbcTemplateExtension jdbcTemplate) {
         this(jdbcTemplate, new FastJsonEventTypeSerializer());
     }
 
-    public TransactionalEventMysqlRepository(JdbcTemplateExtension jdbcTemplate, EventTypeSerializer eventTypeSerializer) {
+    public TransactionEventMysqlRepository(JdbcTemplateExtension jdbcTemplate, EventTypeSerializer eventTypeSerializer) {
         Objects.requireNonNull(jdbcTemplate, "jdbcTemplate is null");
         Objects.requireNonNull(eventTypeSerializer, "eventTypeSerializer is null");
         this.jdbcTemplate = jdbcTemplate;
@@ -38,10 +38,10 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
     }
 
     @Override
-    public void save(List<TransactionalEvent<? extends Event>> events) {
+    public void save(List<TransactionEvent<? extends Event>> events) {
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         jdbcTemplate.batchUpdate("" +
-                        "INSERT INTO dr_transactional_event " +
+                        "INSERT INTO dr_transaction_event " +
                         " (event_key, event_content, status, current_retry_times, max_retry_times, " +
                         "next_retry_time, init_backoff, backoff_factor, creator, editor) " +
                         " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ",
@@ -70,15 +70,15 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
 
         List<Map<String, Object>> objectMap = generatedKeyHolder.getKeyList();
         for (int i = 0; i < events.size(); i++) {
-            TransactionalEvent<? extends Event> event = events.get(i);
+            TransactionEvent<? extends Event> event = events.get(i);
             event.setId(Long.valueOf(objectMap.get(i).get("ID").toString()));
         }
     }
 
     @Override
-    public void updateStatus(TransactionalEvent<? extends Event> txEvent) {
+    public void updateStatus(TransactionEvent<? extends Event> txEvent) {
         jdbcTemplate.update("" +
-                        "UPDATE dr_transactional_event " +
+                        "UPDATE dr_transaction_event " +
                         "SET status = ? , current_retry_times = ? , max_retry_times = ? , next_retry_time = ?, " +
                         "init_backoff = ?, backoff_factor = ? , editor = ? " +
                         "WHERE id = ? ",
@@ -99,17 +99,17 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
         String inSql = ids.stream().map(id -> "?").collect(Collectors.joining(","));
         Object[] params = Stream.concat(Stream.of(Timestamp.valueOf(endTime), editor), ids.stream()).toArray();
         jdbcTemplate.update(
-                String.format("UPDATE dr_transactional_event SET status = 1, next_retry_time = ?, editor= ?  WHERE id in ( %s ) ", inSql),
+                String.format("UPDATE dr_transaction_event SET status = 1, next_retry_time = ?, editor= ?  WHERE id in ( %s ) ", inSql),
                 params);
     }
 
     @Override
-    public List<TransactionalEvent<? extends Event>> queryEvents(LocalDateTime min, LocalDateTime max, int limit) {
+    public List<TransactionEvent<? extends Event>> queryEvents(LocalDateTime min, LocalDateTime max, int limit) {
         return jdbcTemplate.query("" +
                         "SELECT id, event_key, event_content, status, " +
                         "current_retry_times, max_retry_times, next_retry_time, init_backoff, backoff_factor, " +
                         "creator, editor, created_time, updated_time " +
-                        "FROM dr_transactional_event " +
+                        "FROM dr_transaction_event " +
                         "WHERE ( next_retry_time BETWEEN ? AND ? ) AND status = 0 " +
                         "LIMIT ?",
                 ps -> {
@@ -118,11 +118,11 @@ public class TransactionalEventMysqlRepository implements TransactionalEventRepo
                     ps.setInt(3, limit);
                 },
                 (rs, i) -> {
-                    TransactionalEvent<Event> txEvent = new TransactionalEvent<>();
+                    TransactionEvent<Event> txEvent = new TransactionEvent<>();
                     txEvent.setId(rs.getLong("id"));
                     txEvent.setEventKey(rs.getString("event_key"));
                     txEvent.setEvent(eventTypeSerializer.deserialize(rs.getString("event_content"), Event.class));
-                    txEvent.setStatus(TransactionalEvent.Status.FROM_STATUS.requireOf(rs.getObject("status", Integer.class)));
+                    txEvent.setStatus(TransactionEvent.Status.FROM_STATUS.requireOf(rs.getObject("status", Integer.class)));
 
                     txEvent.setCurrentRetryTimes(rs.getObject("current_retry_times", Integer.class));
                     txEvent.setMaxRetryTimes(rs.getObject("max_retry_times", Integer.class));

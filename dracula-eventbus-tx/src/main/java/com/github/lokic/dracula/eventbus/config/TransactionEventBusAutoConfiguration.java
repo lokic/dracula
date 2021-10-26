@@ -6,9 +6,9 @@ import com.github.lokic.dracula.eventbus.lock.db.DbDistributedLockerFactory;
 import com.github.lokic.dracula.eventbus.lock.db.LockRepository;
 import com.github.lokic.dracula.eventbus.transaction.EventKeyParser;
 import com.github.lokic.dracula.eventbus.transaction.JdbcTemplateExtension;
-import com.github.lokic.dracula.eventbus.transaction.TransactionalEventManager;
-import com.github.lokic.dracula.eventbus.transaction.TransactionalEventRepository;
-import com.github.lokic.dracula.eventbus.transaction.mysql.TransactionalEventMysqlRepository;
+import com.github.lokic.dracula.eventbus.transaction.TransactionEventManager;
+import com.github.lokic.dracula.eventbus.transaction.TransactionEventRepository;
+import com.github.lokic.dracula.eventbus.transaction.mysql.TransactionEventMysqlRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,12 +19,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 
 @Configuration
-public class TransactionalEventBusAutoConfiguration {
+public class TransactionEventBusAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "dracula.event-bus.transaction.repository-mode", havingValue = "mysql")
-    public TransactionalEventRepository transactionalEventRepository(DataSource dataSource) {
-        return new TransactionalEventMysqlRepository(new JdbcTemplateExtension(dataSource));
+    public TransactionEventRepository transactionEventRepository(DataSource dataSource) {
+        return new TransactionEventMysqlRepository(new JdbcTemplateExtension(dataSource));
     }
 
     @Bean
@@ -39,15 +39,15 @@ public class TransactionalEventBusAutoConfiguration {
     }
 
     @Bean
-    public TransactionalEventManager transactionalEventManagement(TransactionalEventRepository repository, Exchanger exchanger, DistributedLockerFactory distributedLockerFactory) {
-        return new TransactionalEventManager(repository, exchanger, eventKeyMapping(), distributedLockerFactory);
+    public TransactionEventManager transactionEventManagement(TransactionEventRepository repository, Exchanger exchanger, DistributedLockerFactory distributedLockerFactory) {
+        return new TransactionEventManager(repository, exchanger, eventKeyMapping(), distributedLockerFactory);
     }
 
     @Bean
-    @ConditionalOnBean(TransactionalEventManager.class)
+    @ConditionalOnBean(TransactionEventManager.class)
     @ConditionalOnProperty(name = "dracula.event-bus.transaction.publish-mode", havingValue = "scheduling")
-    public int initScheduling(TransactionalEventManager transactionalEventManager) {
-        transactionalEventManager.init();
+    public int initScheduling(TransactionEventManager transactionEventManager) {
+        transactionEventManager.init();
         return 1;
     }
 

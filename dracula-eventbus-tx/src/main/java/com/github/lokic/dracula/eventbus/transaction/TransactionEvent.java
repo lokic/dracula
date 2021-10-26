@@ -7,7 +7,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class TransactionalEvent<E extends Event> {
+public class TransactionEvent<E extends Event> {
 
     private Long id;
 

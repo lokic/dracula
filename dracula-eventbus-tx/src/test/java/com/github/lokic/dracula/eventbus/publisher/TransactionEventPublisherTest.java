@@ -8,8 +8,8 @@ import com.github.lokic.dracula.eventbus.executor.EventExecutor;
 import com.github.lokic.dracula.eventbus.handler.EventHandler;
 import com.github.lokic.dracula.eventbus.transaction.EventKeyParser;
 import com.github.lokic.dracula.eventbus.transaction.JdbcTemplateExtension;
-import com.github.lokic.dracula.eventbus.transaction.TransactionalEventManager;
-import com.github.lokic.dracula.eventbus.transaction.mysql.TransactionalEventMysqlRepository;
+import com.github.lokic.dracula.eventbus.transaction.TransactionEventManager;
+import com.github.lokic.dracula.eventbus.transaction.mysql.TransactionEventMysqlRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -26,7 +26,7 @@ import javax.sql.DataSource;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
-public class TransactionalEventPublisherTest {
+public class TransactionEventPublisherTest {
 
     @Test
     public void test_publish() {
@@ -34,15 +34,15 @@ public class TransactionalEventPublisherTest {
         DataSource dataSource = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
                 .addScript("classpath:schema.sql")
                 .build();
-        TransactionalEventMysqlRepository repository
-                = new TransactionalEventMysqlRepository(new JdbcTemplateExtension(dataSource));
+        TransactionEventMysqlRepository repository
+                = new TransactionEventMysqlRepository(new JdbcTemplateExtension(dataSource));
 
         Exchanger exchanger = new Exchanger();
-        TransactionalEventManager manager = Mockito.spy(new TransactionalEventManager(repository, exchanger, new EventKeyParser(), null));
+        TransactionEventManager manager = Mockito.spy(new TransactionEventManager(repository, exchanger, new EventKeyParser(), null));
         PlatformTransactionManager tm = new DataSourceTransactionManager(dataSource);
         TransactionTemplate template = new TransactionTemplate(tm);
 
-        TransactionalEventPublisher<TestEvent> queue = new TransactionalEventPublisher<>(TestEvent.class, manager);
+        TransactionEventPublisher<TestEvent> queue = new TransactionEventPublisher<>(TestEvent.class, manager);
         exchanger.bind(queue);
 
         EventBus eventBus = new DefaultEventBus(exchanger);
