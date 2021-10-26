@@ -1,10 +1,10 @@
 /**
  * 持久化的形式：
- * dracula.event-bus.transaction.repository-mode
+ * dracula.event-bus.transaction.repository
  * - mysql
  * <p>
  * 发布的模式
- * dracula.event-bus.transaction.publish-mode
+ * dracula.event-bus.transaction.publish
  * - scheduling
  * <p>
  * 定时任务的fix delay

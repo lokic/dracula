@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 public class TransactionEventBusAutoConfiguration {
 
     @Bean
-    @ConditionalOnProperty(name = "dracula.event-bus.transaction.repository-mode", havingValue = "mysql")
+    @ConditionalOnProperty(name = "dracula.event-bus.transaction.repository", havingValue = "mysql")
     public TransactionEventRepository transactionEventRepository(DataSource dataSource) {
         return new TransactionEventMysqlRepository(new JdbcTemplateExtension(dataSource));
     }
@@ -45,7 +45,7 @@ public class TransactionEventBusAutoConfiguration {
 
     @Bean
     @ConditionalOnBean(TransactionEventManager.class)
-    @ConditionalOnProperty(name = "dracula.event-bus.transaction.publish-mode", havingValue = "scheduling")
+    @ConditionalOnProperty(name = "dracula.event-bus.transaction.publish", havingValue = "scheduling")
     public int initScheduling(TransactionEventManager transactionEventManager) {
         transactionEventManager.init();
         return 1;
