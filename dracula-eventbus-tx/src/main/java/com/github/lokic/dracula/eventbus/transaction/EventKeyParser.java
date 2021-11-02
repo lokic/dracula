@@ -18,7 +18,9 @@ public class EventKeyParser {
     }
 
     public <T> void bind(Class<T> clazz, Function<T, String> function) {
-        this.<T>getMapping().putIfAbsent(clazz, function);
+        this.<T>getMapping().merge(clazz, function, (f1, f2) -> {
+            throw new UnsupportedOperationException(clazz + " duplicate binding");
+        });
     }
 
     public <T> String parseEventKey(T obj) {
