@@ -8,13 +8,10 @@ import com.github.lokic.dracula.eventbus.handler.EventHandlerAttribute;
 import com.github.lokic.dracula.eventbus.interceptor.InterceptorAttribute;
 import com.github.lokic.dracula.eventbus.interceptor.InterceptorChain;
 import com.github.lokic.dracula.eventbus.interceptor.InterceptorChainImpl;
-import com.github.lokic.dracula.eventbus.interceptor.internal.EventTypeInterceptor;
 import lombok.Getter;
 import lombok.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 处理一个事件 {@link Event}时 ，对应一个处理器 {@link EventHandler} 的执行相关的封装。
@@ -37,15 +34,9 @@ public final class DefaultSubscription<E extends Event> implements Subscription<
     @NonNull
     private final Class<E> genericType;
 
-    public DefaultSubscription(Class<E> eventClazz, EventHandler<E> handler, List<InterceptorAttribute<E>> interceptorAttributes, EventHandlerAttribute eventHandlerAttribute) {
-        List<InterceptorAttribute<E>> interceptorAttrs = Optional.ofNullable(interceptorAttributes)
-                .orElseGet(ArrayList::new);
-
-        // 强制第一个必须是事件类型的拦截器
-        interceptorAttrs.add(0, new InterceptorAttribute<>(new EventTypeInterceptor<>(eventClazz)));
-
+    public DefaultSubscription(@NonNull Class<E> eventClazz, @NonNull EventHandler<E> handler, List<InterceptorAttribute<E>> interceptorAttributes, EventHandlerAttribute eventHandlerAttribute) {
         this.genericType = eventClazz;
-        this.chain = new InterceptorChainImpl<>(eventClazz, interceptorAttrs, eventHandlerAttribute.getRules());
+        this.chain = new InterceptorChainImpl<>(eventClazz, interceptorAttributes, eventHandlerAttribute.getRules());
         this.handler = handler;
         this.executor = eventHandlerAttribute.getExecutor();
     }

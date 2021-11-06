@@ -29,6 +29,9 @@ public class InterceptorAttribute<E extends Event> {
     private final InterceptorType type;
 
     public InterceptorAttribute(Interceptor<E> interceptor) {
+        if (interceptor.getName().startsWith(Rule.DISABLE_VALUE_PREFIX)) {
+            throw new IllegalArgumentException("interceptor name [" + interceptor.getName() + "] cannot start with [" + Rule.DISABLE_VALUE_PREFIX + "]");
+        }
         this.order = interceptor.getOrder();
         this.interceptor = interceptor;
         this.type = getType(interceptor);
