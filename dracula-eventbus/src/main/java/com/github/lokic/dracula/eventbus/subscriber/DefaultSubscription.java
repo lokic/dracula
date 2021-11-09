@@ -34,7 +34,7 @@ public final class DefaultSubscription<E extends Event> implements Subscription<
     @NonNull
     private final Class<E> genericType;
 
-    public DefaultSubscription(@NonNull Class<E> eventClazz, @NonNull EventHandler<E> handler, List<InterceptorAttribute<E>> interceptorAttributes, EventHandlerAttribute eventHandlerAttribute) {
+    public DefaultSubscription(@NonNull Class<E> eventClazz, @NonNull EventHandler<E> handler, List<InterceptorAttribute<? extends E>> interceptorAttributes, EventHandlerAttribute eventHandlerAttribute) {
         this.genericType = eventClazz;
         this.chain = new InterceptorChainImpl<>(eventClazz, interceptorAttributes, eventHandlerAttribute.getRules());
         this.handler = handler;

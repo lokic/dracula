@@ -19,7 +19,7 @@ public class DefaultEventBus implements EventBus {
     }
 
     @Override
-    public <E extends Event> void register(Class<E> eventClazz, EventHandler<E> handler, List<InterceptorAttribute<E>> interceptorAttributes, EventHandlerAttribute eventHandlerAttribute) {
+    public <E extends Event> void register(Class<E> eventClazz, EventHandler<E> handler, List<InterceptorAttribute<? extends E>> interceptorAttributes, EventHandlerAttribute eventHandlerAttribute) {
         Subscription<E> subscription = Subscription.of(eventClazz, handler, interceptorAttributes, eventHandlerAttribute);
         Queue<E> queue = exchanger.getOrCreateQueue(eventClazz);
         queue.register(subscription);

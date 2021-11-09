@@ -4,7 +4,6 @@ package com.github.lokic.dracula.eventbus.interceptor;
 import lombok.EqualsAndHashCode;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -50,25 +49,12 @@ public class Rule {
         }
     }
 
-    private boolean isEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
     public String getName() {
         return name;
-    }
-
-    /**
-     * 是否是该规则的启用规则
-     *
-     * @param rule
-     * @return
-     */
-    public boolean isTheRuleEnabled(Rule rule) {
-        if (!Objects.equals(name, rule.name)) {
-            return false;
-        }
-        return rule.isEnabled();
     }
 
     private String buildRuleName(boolean enable, String name) {

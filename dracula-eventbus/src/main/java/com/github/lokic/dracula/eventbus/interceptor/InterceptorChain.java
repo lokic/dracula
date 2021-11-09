@@ -11,6 +11,6 @@ import java.util.List;
  */
 public interface InterceptorChain<E extends Event> {
 
-    List<Interceptor<E>> getInterceptors();
+    List<Interceptor<? extends E>> getInterceptors();
 
 }

@@ -35,9 +35,9 @@ public class InterceptorExecution<E extends Event> {
      */
     private int interceptorIndex = -1;
 
-    private final List<Interceptor<E>> interceptors;
+    private final List<Interceptor<? extends E>> interceptors;
 
-    public InterceptorExecution(List<Interceptor<E>> interceptors) {
+    public InterceptorExecution(List<Interceptor<? extends E>> interceptors) {
         this.interceptors = interceptors;
     }
 

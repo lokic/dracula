@@ -14,20 +14,22 @@ import java.util.*;
  */
 public class InternalInterceptorRegistry {
 
-    private static final Map<Type, Interceptor<? extends Event>> INTERCEPTORS = new LinkedHashMap<>();
+    public static final InternalInterceptorRegistry INSTANCE = new InternalInterceptorRegistry();
 
-    static {
+    private final Map<Type, Interceptor<? extends Event>> INTERCEPTORS = new LinkedHashMap<>();
+
+    private InternalInterceptorRegistry() {
         register(new AccessLogInterceptor<>());
     }
 
-    private static void register(Interceptor<? extends Event> interceptor) {
+    private void register(Interceptor<? extends Event> interceptor) {
         if (interceptor.getInterceptorType() != InterceptorType.INTERNAL) {
             throw new IllegalArgumentException("only internal interceptor can be registered, interceptor = " + interceptor.getName());
         }
         INTERCEPTORS.put(interceptor.getClass(), interceptor);
     }
 
-    public static List<Interceptor<? extends Event>> getAll() {
+    public List<Interceptor<? extends Event>> getAll() {
         return Collections.unmodifiableList(new ArrayList<>(INTERCEPTORS.values()));
     }
 }

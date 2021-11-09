@@ -23,8 +23,8 @@ public interface Subscription<E extends Event> {
 
     Class<E> getGenericType();
 
-    static <E extends Event> Subscription<E> of(Class<E> eventClazz, EventHandler<E> handler, List<InterceptorAttribute<E>> interceptorAttributes, EventHandlerAttribute eventHandlerAttribute) {
-        return new DefaultSubscription<>(eventClazz, handler, interceptorAttributes, eventHandlerAttribute);
+    static <E extends Event> Subscription<E> of(Class<E> eventClazz, EventHandler<E> handler, List<InterceptorAttribute<? extends E>> interceptorAttributes, EventHandlerAttribute eventHandlerAttribute) {
+        return new DefaultSubscription<E>(eventClazz, handler, interceptorAttributes, eventHandlerAttribute);
     }
 
 
