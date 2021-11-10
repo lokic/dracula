@@ -65,7 +65,7 @@ public class InterceptorComparatorTest {
                                 Rule.of("default"),
                                 Rule.of("C")),
                         Lists.newArrayList("A", "D", "C", "B")},
-                {"调整internal name，不生效", ImmutableList.of(
+                {"调整internal name，不生效，默认第一个有default", ImmutableList.of(
                         mockExt("C", 0),
                         mockExt("A", 1),
                         mockExt("B", 2),
@@ -75,7 +75,18 @@ public class InterceptorComparatorTest {
                                 Rule.of("B"),
                                 Rule.of("C"),
                                 Rule.of("D")),
-                        Lists.newArrayList("D", "A", "B", "C")}
+                        Lists.newArrayList("D", "A", "B", "C")},
+                {"调整default顺序", ImmutableList.of(
+                        mockInt("C", 1),
+                        mockInt("A", 0),
+                        mockInt("B", 3),
+                        mockInt("D", 2)),
+                        Lists.newArrayList(
+                                Rule.of("A"),
+                                Rule.of("B"),
+                                Rule.of("C"),
+                                Rule.of("D")),
+                        Lists.newArrayList("A", "C", "D", "B")}
 
         };
     }

@@ -25,4 +25,8 @@ public class AccessLogInterceptor<E extends Event> implements InternalIntercepto
         return NAME;
     }
 
+    @Override
+    public int getOrder() {
+        return 1;
+    }
 }

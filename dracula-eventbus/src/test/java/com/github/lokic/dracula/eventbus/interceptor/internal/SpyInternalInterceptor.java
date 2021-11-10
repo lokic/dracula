@@ -34,4 +34,9 @@ public class SpyInternalInterceptor<E extends Event> implements InternalIntercep
     public void onFinal(Event event, HandlerContext context) {
 
     }
+
+    @Override
+    public int getOrder() {
+        return order;
+    }
 }

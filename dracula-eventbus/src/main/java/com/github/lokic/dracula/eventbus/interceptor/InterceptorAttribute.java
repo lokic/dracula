@@ -42,7 +42,7 @@ public class InterceptorAttribute<E extends Event> {
     private InterceptorType getType(Interceptor<E> interceptor) {
         InterceptorType type = interceptor.getInterceptorType();
         if (type != InterceptorType.EXTENSION && type != InterceptorType.INTERNAL) {
-            throw new IllegalStateException("Interceptor name " + interceptor.getName() + " type not support");
+            throw new IllegalArgumentException("Interceptor name " + interceptor.getName() + " type not support");
         }
         return type;
     }

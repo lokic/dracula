@@ -6,8 +6,8 @@ import com.github.lokic.dracula.eventbus.interceptor.internal.SpyInternalInterce
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,7 +17,9 @@ public class InterceptorChainImplTest {
 
     @Test
     public void test_parseEnabledInterceptorAttributes() {
-        InterceptorChainImpl<TestEvent> interceptorChain = new InterceptorChainImpl<>(TestEvent.class, new ArrayList<>(), new ArrayList<>());
+        @SuppressWarnings("unchecked")
+        InterceptorChainImpl<TestEvent> interceptorChain = Mockito.mock(InterceptorChainImpl.class);
+        Mockito.doCallRealMethod().when(interceptorChain).parseEnabledInterceptorAttributes(Mockito.anyList(), Mockito.anyList());
 
         InterceptorAttribute<TestEvent> interceptorAttribute1 = new InterceptorAttribute<>(buildInterceptor("A", 0));
         InterceptorAttribute<TestEvent> interceptorAttribute2 = new InterceptorAttribute<>(buildInterceptor("B", 1));

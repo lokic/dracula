@@ -20,13 +20,17 @@ public class EventTypeInterceptor<E extends Event> implements InternalIntercepto
     }
 
     @Override
+    public boolean onAccept(Event event, HandlerContext context) {
+        return event.getClass() == eventClazz;
+    }
+
+    @Override
     public String getName() {
         return NAME;
     }
 
     @Override
-    public boolean onAccept(Event event, HandlerContext context) {
-        return event.getClass() == eventClazz;
+    public int getOrder() {
+        return 0;
     }
-
 }
