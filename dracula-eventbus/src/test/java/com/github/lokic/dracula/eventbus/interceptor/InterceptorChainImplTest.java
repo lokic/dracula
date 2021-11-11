@@ -26,6 +26,7 @@ public class InterceptorChainImplTest {
     private InterceptorAttribute<TestEvent> interceptorAttribute5;
     private InterceptorAttribute<TestEvent> interceptorAttribute6;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void init() {
         interceptorChain = Mockito.mock(InterceptorChainImpl.class);
@@ -96,12 +97,11 @@ public class InterceptorChainImplTest {
     public void test_parseEnabledInterceptorAttributes_orderInDefault() {
         // default内部排序，order越小，顺序越靠前
         List<InterceptorAttribute<? extends TestEvent>> attributes2 = Stream.of(
-                        interceptorAttribute1, interceptorAttribute2, interceptorAttribute3,
                         interceptorAttribute4, interceptorAttribute5, interceptorAttribute6)
                 .collect(Collectors.toList());
         Assert.assertEquals(
-                Lists.newArrayList(interceptorAttribute6, interceptorAttribute4, interceptorAttribute5, interceptorAttribute1, interceptorAttribute3),
-                interceptorChain.parseEnabledInterceptorAttributes(attributes2, Lists.newArrayList(Rule.of("default"), Rule.of("A"), Rule.of("C")))
+                Lists.newArrayList(interceptorAttribute6, interceptorAttribute4, interceptorAttribute5),
+                interceptorChain.parseEnabledInterceptorAttributes(attributes2, Lists.newArrayList(Rule.of("default")))
         );
     }
 
