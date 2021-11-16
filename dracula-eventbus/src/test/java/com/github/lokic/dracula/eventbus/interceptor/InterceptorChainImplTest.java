@@ -1,8 +1,8 @@
 package com.github.lokic.dracula.eventbus.interceptor;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.interceptor.extension.SpyExtensionInterceptor;
-import com.github.lokic.dracula.eventbus.interceptor.internal.SpyInternalInterceptor;
+import com.github.lokic.dracula.eventbus.interceptor.extension.StubExtensionInterceptor;
+import com.github.lokic.dracula.eventbus.interceptor.internal.StubInternalInterceptor;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,12 +32,12 @@ public class InterceptorChainImplTest {
         interceptorChain = Mockito.mock(InterceptorChainImpl.class);
         Mockito.doCallRealMethod().when(interceptorChain).parseEnabledInterceptorAttributes(Mockito.anyList(), Mockito.anyList());
 
-        interceptorAttribute1 = new InterceptorAttribute<>(new SpyExtensionInterceptor<>("A", 0));
-        interceptorAttribute2 = new InterceptorAttribute<>(new SpyExtensionInterceptor<>("B", 1));
-        interceptorAttribute3 = new InterceptorAttribute<>(new SpyExtensionInterceptor<>("C", 2));
-        interceptorAttribute4 = new InterceptorAttribute<>(new SpyInternalInterceptor<>("D", 1));
-        interceptorAttribute5 = new InterceptorAttribute<>(new SpyInternalInterceptor<>("E", 2));
-        interceptorAttribute6 = new InterceptorAttribute<>(new SpyInternalInterceptor<>("F", 0));
+        interceptorAttribute1 = new InterceptorAttribute<>(new StubExtensionInterceptor<>("A", 0));
+        interceptorAttribute2 = new InterceptorAttribute<>(new StubExtensionInterceptor<>("B", 1));
+        interceptorAttribute3 = new InterceptorAttribute<>(new StubExtensionInterceptor<>("C", 2));
+        interceptorAttribute4 = new InterceptorAttribute<>(new StubInternalInterceptor<>("D", 1));
+        interceptorAttribute5 = new InterceptorAttribute<>(new StubInternalInterceptor<>("E", 2));
+        interceptorAttribute6 = new InterceptorAttribute<>(new StubInternalInterceptor<>("F", 0));
 
         attributes = Stream.of(
                         interceptorAttribute1, interceptorAttribute2, interceptorAttribute3,

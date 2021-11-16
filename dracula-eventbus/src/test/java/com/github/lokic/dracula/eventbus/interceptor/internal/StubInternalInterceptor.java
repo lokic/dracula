@@ -5,12 +5,12 @@ import com.github.lokic.dracula.eventbus.handler.HandlerContext;
 import lombok.ToString;
 
 @ToString
-public class SpyInternalInterceptor<E extends Event> implements InternalInterceptor<E> {
+public class StubInternalInterceptor<E extends Event> implements InternalInterceptor<E> {
 
     private final String name;
     private final int order;
 
-    public SpyInternalInterceptor(String name, int order) {
+    public StubInternalInterceptor(String name, int order) {
         this.name = name;
         this.order = order;
     }

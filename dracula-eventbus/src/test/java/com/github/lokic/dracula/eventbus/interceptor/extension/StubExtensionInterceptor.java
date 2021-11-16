@@ -5,11 +5,11 @@ import com.github.lokic.dracula.eventbus.handler.HandlerContext;
 import lombok.ToString;
 
 @ToString
-public class SpyExtensionInterceptor<E extends Event> implements ExtensionInterceptor<E> {
+public class StubExtensionInterceptor<E extends Event> implements ExtensionInterceptor<E> {
     private final String name;
     private final int order;
 
-    public SpyExtensionInterceptor(String name, int order) {
+    public StubExtensionInterceptor(String name, int order) {
         this.name = name;
         this.order = order;
     }

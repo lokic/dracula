@@ -1,8 +1,8 @@
 package com.github.lokic.dracula.eventbus.interceptor;
 
 import com.github.lokic.dracula.event.Event;
-import com.github.lokic.dracula.eventbus.interceptor.extension.SpyExtensionInterceptor;
-import com.github.lokic.dracula.eventbus.interceptor.internal.SpyInternalInterceptor;
+import com.github.lokic.dracula.eventbus.interceptor.extension.StubExtensionInterceptor;
+import com.github.lokic.dracula.eventbus.interceptor.internal.StubInternalInterceptor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.tngtech.java.junit.dataprovider.DataProvider;
@@ -92,11 +92,11 @@ public class InterceptorComparatorTest {
     }
 
     private static <E extends Event> InterceptorAttribute<E> mockInt(String name, int order) {
-        return new InterceptorAttribute<>(new SpyInternalInterceptor<>(name, order));
+        return new InterceptorAttribute<>(new StubInternalInterceptor<>(name, order));
     }
 
     private static <E extends Event> InterceptorAttribute<E> mockExt(String name, int order) {
-        return new InterceptorAttribute<>(new SpyExtensionInterceptor<>(name, order));
+        return new InterceptorAttribute<>(new StubExtensionInterceptor<>(name, order));
     }
 
 }
