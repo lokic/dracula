@@ -1,48 +1,50 @@
 package com.github.lokic.dracula.eventbus;
 
+import com.github.lokic.custom.registrar.AnnotationAttributeUtils;
+import com.github.lokic.custom.registrar.Scanner;
 import com.github.lokic.dracula.eventbus.annotation.EnableEventBus;
 import com.github.lokic.dracula.eventbus.annotation.EventHandlerComponent;
 import com.github.lokic.dracula.eventbus.annotation.PublisherComponent;
 import com.github.lokic.dracula.eventbus.annotation.SubscriberComponent;
 import com.github.lokic.javaplus.Types;
-import com.google.common.collect.Lists;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.util.ClassUtils;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar {
 
     /**
      * 对应 {@link EnableEventBus#eventBus()} 的名字
      */
-    private static final String ANNOTATION_ATTRIBUTE_OF_EVENT_BUS = "eventBus";
+    private static final String EVENT_BUS_ATTRIBUTE_NAME = "eventBus";
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        Map<String, Object> attributes = getAnnotationAttributes(importingClassMetadata, EnableEventBus.class);
-        if (attributes.containsKey(ANNOTATION_ATTRIBUTE_OF_EVENT_BUS)) {
-            Object eventBusClazz = attributes.get(ANNOTATION_ATTRIBUTE_OF_EVENT_BUS);
+        Map<String, Object> attributes = AnnotationAttributeUtils.getAnnotationAttributes(importingClassMetadata, EnableEventBus.class);
+        if (attributes.containsKey(EVENT_BUS_ATTRIBUTE_NAME)) {
+            Object eventBusClazz = attributes.get(EVENT_BUS_ATTRIBUTE_NAME);
             if (eventBusClazz instanceof Class) {
                 registerToSpring(registry, Types.cast(eventBusClazz));
-                Scanner.doScan(importingClassMetadata, registry, PublisherComponent.class, SubscriberComponent.class);
-                Scanner.doScan(importingClassMetadata, registry, EventHandlerComponent.class);
+
+                Scanner scanner = new Scanner(importingClassMetadata, registry, EnableEventBus.class) {
+                    @Override
+                    protected List<Class<? extends Annotation>> getCustomIncludeFilters() {
+                        return Stream.of(PublisherComponent.class, SubscriberComponent.class, EventHandlerComponent.class)
+                                .collect(Collectors.toList());
+                    }
+                };
+                scanner.doScan();
             }
         }
-    }
-
-    private Map<String, Object> getAnnotationAttributes(AnnotationMetadata importingClassMetadata, Class<? extends Annotation> annotationClazz) {
-        return Optional.ofNullable(importingClassMetadata.getAnnotationAttributes(annotationClazz.getName()))
-                .orElseGet(HashMap::new);
     }
 
     /**
@@ -61,55 +63,4 @@ public class EventBusConfigRegistrar implements ImportBeanDefinitionRegistrar {
         beanDefinition.setPrimary(true);
         registry.registerBeanDefinition(clazz.getName(), beanDefinition);
     }
-
-    private static abstract class Scanner extends ClassPathBeanDefinitionScanner {
-
-        @SafeVarargs
-        public static void doScan(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry, Class<? extends Annotation>... customIncludeFilters) {
-            Scanner scanner = new Scanner(registry) {
-                @Override
-                List<Class<? extends Annotation>> getCustomIncludeFilters() {
-                    return Lists.newArrayList(customIncludeFilters);
-                }
-            };
-            Set<String> basePackages = getBasePackages(importingClassMetadata);
-            scanner.doScan(basePackages.toArray(new String[0]));
-        }
-
-
-        /**
-         * 获取basePackages
-         */
-        private static Set<String> getBasePackages(AnnotationMetadata importingClassMetadata) {
-            Set<String> basePackages = new HashSet<>();
-            basePackages.add(
-                    ClassUtils.getPackageName(importingClassMetadata.getClassName()));
-            return basePackages;
-        }
-
-        Scanner(BeanDefinitionRegistry registry) {
-            super(registry);
-        }
-
-        @Override
-        protected void registerDefaultFilters() {
-            addIncludeFilters(getCustomIncludeFilters());
-        }
-
-        abstract List<Class<? extends Annotation>> getCustomIncludeFilters();
-
-        final void addIncludeFilters(List<Class<? extends Annotation>> annotationTypes) {
-            for (Class<? extends Annotation> annotationType : annotationTypes) {
-                addIncludeFilter(new AnnotationTypeFilter(annotationType));
-            }
-        }
-
-        @Override
-        public Set<BeanDefinitionHolder> doScan(String... basePackages) {
-            return super.doScan(basePackages);
-        }
-
-    }
-
-
 }
